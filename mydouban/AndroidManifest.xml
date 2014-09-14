@@ -56,6 +56,10 @@
              android:label="@string/myinfo"
             android:theme="@android:style/Theme.NoTitleBar" 
             ></activity>
+         <activity android:name="zhangfei.example.mydouban.MyReadActivity"
+             android:label="@string/myread"
+            android:theme="@android:style/Theme.NoTitleBar" 
+            ></activity>
 
         <receiver android:name="zhangfei.example.mydouban.receiver.NetConnChangedReceiver" >
             <intent-filter android:priority="1000" >
