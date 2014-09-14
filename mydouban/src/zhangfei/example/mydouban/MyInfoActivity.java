@@ -2,14 +2,20 @@ package zhangfei.example.mydouban;
 
 import java.io.IOException;
 
+import zhangfei.example.mydouban.Utils.LoadImageFromServer;
+import zhangfei.example.mydouban.Utils.LoadImageFromServer.LoadImageCallback;
+
+import com.google.gdata.data.Link;
 import com.google.gdata.data.TextContent;
 import com.google.gdata.data.douban.UserEntry;
 import com.google.gdata.util.ServiceException;
 
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.method.ArrowKeyMovementMethod;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -29,11 +35,9 @@ public class MyInfoActivity extends BaseMyActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+
 		setContentView(R.layout.myinfo_layout);
-		setupView();
-		setupListener();
-		fillData();
+		super.onCreate(savedInstanceState);
 	}
 
 	@Override
@@ -48,11 +52,11 @@ public class MyInfoActivity extends BaseMyActivity {
 
 		mPb_loading = (ProgressBar) findViewById(R.id.pb_myinfo);
 		mTv_loading = (TextView) findViewById(R.id.txt_loading);
+
 	}
 
 	@Override
 	public void setupListener() {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -61,7 +65,7 @@ public class MyInfoActivity extends BaseMyActivity {
 		mTv_title.setText("我的资料");
 		mTv_userdesc.setTextIsSelectable(true);
 
-		AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
+		new AsyncTask<Void, Void, String>() {
 			UserEntry ue;
 
 			@Override
@@ -69,30 +73,62 @@ public class MyInfoActivity extends BaseMyActivity {
 				mRl_loading_fromP.setVisibility(View.VISIBLE);
 				if (isNetworkAvail()) {
 					showLoading();
+
 				} else {
 					mPb_loading.setVisibility(View.GONE);
 					mTv_loading.setText("加载失败，请返回重试");
 				}
+
 				super.onPreExecute();
 			}
 
 			@Override
-			protected Void doInBackground(Void... params) {
+			protected String doInBackground(Void... params) {
 				try {
-
 					ue = myService.getAuthorizedUser();
-
+					String iconurl = null;
+					for (Link link : ue.getLinks()) {
+						if ("icon".equals(link.getRel())) {
+							iconurl = link.getHref();
+						}
+					}
+					return iconurl;
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					return null;
 				}
 
-				return null;
+			}
+
+			private void getImageFromServer(String iconurl) {
+				LoadImageCallback callback = new LoadImageCallback() {
+
+					@Override
+					public void beforeLoad() {
+						// mIv_prot.setImageResource(R.drawable.icon_corp);
+					}
+
+					@Override
+					public void afterLoad(Bitmap result) {
+						if (result != null) {
+							mIv_prot.setImageBitmap(result);
+						} else {
+							mIv_prot.setImageResource(R.drawable.icon_corp);
+						}
+
+					}
+
+				};
+
+				new LoadImageFromServer(callback).execute(iconurl);
+
 			}
 
 			@Override
-			protected void onPostExecute(Void result) {
+			protected void onPostExecute(String result) {
 				super.onPostExecute(result);
+				getImageFromServer(result);
 				if (isNetworkAvail()) {
 					hideLoading();
 				}

@@ -17,10 +17,13 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.Html;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.ScaleAnimation;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +41,7 @@ public abstract class BaseMyActivity extends Activity {
 	private NetConnChangedReceiver mNetReceiver;
 	private SharedPreferences sp;
 
+	private ImageButton mIbtn_back;
 	public TextView mTv_user_fromP;
 	public RelativeLayout mRl_loading_fromP;
 	private Handler handler = new Handler() {
@@ -75,8 +79,22 @@ public abstract class BaseMyActivity extends Activity {
 		// mTv_user=(TextView) findViewById(R.id.tv_titlebar_user);
 		setupView();
 		setupListener();
-		showUser();
+		fillData();
+		ctrlTitleBar();
 		super.onCreate(savedInstanceState);
+	}
+
+	private void ctrlTitleBar() {
+		showUser();
+		mIbtn_back = (ImageButton) findViewById(R.id.back_button);
+		mIbtn_back.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				finish();
+
+			}
+		});
 	}
 
 	public abstract void setupView();
