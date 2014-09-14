@@ -109,7 +109,7 @@ public class MeActivity extends BaseCheckNetActivity implements
 			@Override
 			public void onClick(View v) {
 				onBackPressed();
-				
+
 			}
 		});
 	}
@@ -185,6 +185,11 @@ public class MeActivity extends BaseCheckNetActivity implements
 			Log.i(TAG, "User has already Authoroized.");
 			Log.i(TAG, "选中的是：" + items[position]);
 			switch (position) {
+			case 0:
+				Intent myreadIntent = new Intent(this, MyReadActivity.class);
+				startActivity(myreadIntent);
+				break;
+
 			case 5:
 				Intent myInfoIntent = new Intent(this, MyInfoActivity.class);
 				startActivity(myInfoIntent);
