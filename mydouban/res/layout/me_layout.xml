@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundcolor"
+    android:orientation="vertical" >
+
+    <include layout="@layout/titlebar" />
+    <!--
+	include 包含某个布局
+	android:cacheColorHint 取消listview的背景 
+	android:divider listview 里面两个item之间的背景
+    -->
+
+    <ListView
+        android:id="@+id/lv_me"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:cacheColorHint="#00000000"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="8dp"
+        android:paddingTop="5.0dip"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="3dp"
+        android:scrollbarStyle="outsideInset" 
+        
+        >
+    </ListView>
+
+</LinearLayout>

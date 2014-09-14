@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <style name="mytextshadow">
+        <item name="android:shadowColor">#FFFFFF</item>
+        <item name="android:shadowDx">0</item>
+        <item name="android:shadowDy">3</item>
+        <item name="android:shadowRadius">1</item>
+    </style>
+    
+    <style name="TextViewStyleTabMainNav">
+		<item name="android:textSize">12dip</item>
+		<item name="android:textColor">@drawable/tab_main_nav_text_selector</item>
+	</style>
+</resources>

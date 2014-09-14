@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- this layout isn't  handsome for all screens,but it  can still be tolerated -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:id="@+id/ll_splash"
+    android:layout_height="match_parent"
+    android:background="@drawable/home_gradient"
+    android:gravity="center_horizontal"
+    android:orientation="vertical" >
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/logo" />
+
+    <!--
+         android:scaleType是控制图片如何resized/moved来匹对ImageView的size CENTER_INSIDE 
+		/ centerInside 将图片的内容完整居中显示，通过按比例缩小或原来的size使得图片长/宽等于或小于View的长/宽
+    -->
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        style="@style/mytextshadow"
+        
+        android:textSize="35sp"
+        android:gravity="bottom"
+        android:typeface="serif"
+        android:textColor="#444444"
+        android:text="@string/app_name" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/mytextshadow"
+        android:layout_marginTop="20dp"
+         android:textSize="25sp"
+        android:gravity="bottom"
+        android:typeface="serif"
+        android:textColor="#444444"
+        android:text="( 豆瓣客户端 )" />
+
+    <TextView
+        android:id="@+id/tv_splash_version_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+         style="@style/mytextshadow"
+        android:layout_marginTop="20dp"
+         android:textSize="20sp"
+        android:gravity="bottom"
+        android:typeface="serif"
+        android:textColor="#444444"
+        android:text="版本号" />
+
+</LinearLayout>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="zhangfei.example.mydouban"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="11"
+        android:targetSdkVersion="16" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/logo"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <uses-library android:name="android.test.runner" />
+
+        <activity
+            android:name=".SplashActivity"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="zhangfei.example.mydouban.MainTabActivity"
+            android:label="@string/douban"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+        <activity
+            android:name="zhangfei.example.mydouban.MeActivity"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+        <activity
+            android:name="zhangfei.example.mydouban.TestActivity"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+        <activity
+            android:name="zhangfei.example.mydouban.LoginActivity"
+            android:label="@string/login"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+          <activity
+            android:name="zhangfei.example.mydouban.LoginActivity2"
+            android:label="@string/login"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+        <activity android:name="zhangfei.example.mydouban.MyInfoActivity"
+             android:label="@string/myinfo"
+            android:theme="@android:style/Theme.NoTitleBar" 
+            ></activity>
+
+        <receiver android:name="zhangfei.example.mydouban.receiver.NetConnChangedReceiver" >
+            <intent-filter android:priority="1000" >
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                 
+            </intent-filter>
+        </receiver>
+    </application>
+
+    <instrumentation
+        android:name="android.test.InstrumentationTestRunner"
+        android:label="Test"
+        android:targetPackage="com.project.jamffy.mobilesafe2" >
+    </instrumentation>
+
+</manifest>

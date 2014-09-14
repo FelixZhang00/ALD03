@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="loginurl">http://www.douban.com/accounts/login</string>
+    <string name="captchaurl">http://www.douban.com/misc/captcha?id=</string>
+    <string name="douban_apiKey">0c51c1ba21ad8cfd24f5452e6508a6f7</string>
+    <string name="douban_secret">359e16e5e5c62b6e</string>
+    <string name="douban_appname">黑马小瓣瓣</string>
+
+</resources>
