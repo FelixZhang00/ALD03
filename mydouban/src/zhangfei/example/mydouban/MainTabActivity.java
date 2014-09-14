@@ -16,11 +16,13 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TabHost;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.TabHost.TabSpec;
 
 public class MainTabActivity extends TabActivity {
 	private TabHost mTabHost;
 	private LayoutInflater mInflater;
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +73,6 @@ public class MainTabActivity extends TabActivity {
 		return view;
 	}
 
-
-
+	
 
 }

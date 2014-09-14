@@ -1,7 +1,5 @@
 package zhangfei.example.mydouban;
 
-import java.io.IOException;
-
 import com.google.gdata.util.ServiceException;
 
 import zhangfei.example.mydouban.SplashActivity.LoadMainTabTask;
@@ -36,6 +34,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -49,15 +48,15 @@ public class MeActivity extends BaseCheckNetActivity implements
 	private static final String items[] = { "我读...", "我看...", "我听...", "我评...",
 			"我的日记", "我的资料", "小组" };
 	private String TAG = "MeActivity";
+	private boolean mBackKeyPressedTimes = false; // false 不允许退出
 
 	private ListView mLv;
 	private static TextView mTv_user;
 	private MenuItem mItem_user;
-	private SharedPreferences sp;
+	private ImageButton mIbtn_back;
+
 	private NetConnChangedReceiver mNetReceiver;
-	private Intent settingIntent;
-	private PackageManager pm;
-	private TitleBarState titleBarState;
+
 	private Handler handler = new Handler() {
 
 		@Override
@@ -82,17 +81,14 @@ public class MeActivity extends BaseCheckNetActivity implements
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
 		setContentView(R.layout.me_layout);
-		sp = getSharedPreferences("config", Context.MODE_PRIVATE);
-		pm = getPackageManager();
 		mContext_fromP = this;
-		titleBarState = new TitleBarState();
-		mLv = (ListView) this.findViewById(R.id.lv_me);
-		mTv_user = (TextView) findViewById(R.id.tv_titlebar_user);
+		super.onCreate(savedInstanceState);
+
+		setupView();
 		mLv.setAdapter(new ArrayAdapter<String>(this, R.layout.me_item,
 				R.id.tv_me_item, items));
-		mLv.setOnItemClickListener(this);
+		setupListener();
 
 		if (!isUserAuthoroized()) {
 			TitleBarState.setTitleBarState(TitleBarState.NO_LOGIN);
@@ -103,6 +99,25 @@ public class MeActivity extends BaseCheckNetActivity implements
 		if (!isNetworkAvail()) {
 			showNetSetDialog(false);
 		}
+
+	}
+
+	private void setupListener() {
+		mLv.setOnItemClickListener(this);
+		mIbtn_back.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				onBackPressed();
+				
+			}
+		});
+	}
+
+	private void setupView() {
+		mLv = (ListView) this.findViewById(R.id.lv_me);
+		mTv_user = (TextView) findViewById(R.id.tv_titlebar_user);
+		mIbtn_back = (ImageButton) findViewById(R.id.back_button);
 
 	}
 
@@ -379,6 +394,33 @@ public class MeActivity extends BaseCheckNetActivity implements
 		 */
 		// initMenuItem();
 
+	}
+
+	// 按返回键后调用的方法
+	@Override
+	public void onBackPressed() {
+		if (!mBackKeyPressedTimes) {
+			Toast.makeText(getApplicationContext(), "再按一次退出应用",
+					Toast.LENGTH_SHORT).show();
+			mBackKeyPressedTimes = true;
+			new Thread() {
+				@Override
+				public void run() {
+					try {
+						Thread.sleep(1800);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					} finally {
+						mBackKeyPressedTimes = false;
+					}
+					super.run();
+				}
+			}.start();
+			return; // 在打开上面的新线程的同时，已经return了
+		} else {
+			finish();
+		}
+		super.onBackPressed(); // 抢在调用父类方法之前
 	}
 
 }
