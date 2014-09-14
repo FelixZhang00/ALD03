@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gdata.data.Link;
 import com.google.gdata.data.douban.Attribute;
@@ -48,14 +51,14 @@ public class MyReadActivity extends BaseMyActivity {
 	private LinearLayout mLL_notice;
 	private ProgressBar mPb_loading;
 	private TextView mTv_loading;
-
+	private Map<String, SoftReference<Bitmap>> mIconCache;
 	private MyAdapter mAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-
 		setContentView(R.layout.myread_layout);
 		super.onCreate(savedInstanceState);
+		mIconCache = new HashMap<String, SoftReference<Bitmap>>();
 
 	}
 
@@ -243,6 +246,45 @@ public class MyReadActivity extends BaseMyActivity {
 			tv_desc.setText(desc);
 			String filename = imgurl.substring(imgurl.lastIndexOf("/") + 1,
 					imgurl.length());
+			// loadimgMethod1(iv_book, imgurl, filename);
+			loadimgMethod2(iv_book, imgurl);
+
+			return view;
+		}
+
+		/**
+		 * Just for learning. Method2:load img from memory.
+		 * @param iv_book
+		 * @param imgurl
+		 */
+		private void loadimgMethod2(final ImageView iv_book, String imgurl) {
+			if (mIconCache.containsKey(imgurl)) {
+				SoftReference<Bitmap> softRef = mIconCache.get(imgurl);
+				if (softRef != null) {
+					Bitmap bitmap = softRef.get();
+					if (bitmap != null) {
+						Log.i(TAG, "load img from cache.");
+						iv_book.setImageBitmap(bitmap);
+
+					} else {
+						loadimgFromS(iv_book, imgurl, null,false);
+					}
+				}
+
+			} else {
+				loadimgFromS(iv_book, imgurl, null,false);
+			}
+		}
+
+		/**
+		 * Just for learning. Method1:load img from sdcard.
+		 * 
+		 * @param iv_book
+		 * @param imgurl
+		 * @param filename
+		 */
+		private void loadimgMethod1(final ImageView iv_book, String imgurl,
+				String filename) {
 			File file = new File(Environment.getExternalStorageDirectory()
 					.getPath(), filename);
 			if (file.exists()) {
@@ -250,11 +292,9 @@ public class MyReadActivity extends BaseMyActivity {
 				iv_book.setImageURI(Uri.fromFile(file));
 			} else {
 				Log.i(TAG, "load img from server.");
-				loadimgFromS(iv_book, imgurl, file);
+				loadimgFromS(iv_book, imgurl, file,true);
 
 			}
-
-			return view;
 		}
 
 		/**
@@ -262,9 +302,13 @@ public class MyReadActivity extends BaseMyActivity {
 		 * 
 		 * @param iv_book
 		 * @param imgurl
+		 * @param file
+		 *            :"null" means needn't store img to sdcard.
+		 * @param flag
+		 *            true:store img to sdcard; false:store img to cache;
 		 */
-		private void loadimgFromS(final ImageView iv_book, String imgurl,
-				final File file) {
+		private void loadimgFromS(final ImageView iv_book, final String imgurl,
+				final File file, final boolean flag) {
 			LoadImageCallback callback = new LoadImageCallback() {
 
 				@Override
@@ -276,12 +320,21 @@ public class MyReadActivity extends BaseMyActivity {
 				public void afterLoad(Bitmap result) {
 					if (result != null) {
 						iv_book.setImageBitmap(result);
-						// store the img from network.
-						try {
-							FileOutputStream fos = new FileOutputStream(file);
-							result.compress(CompressFormat.JPEG, 100, fos);
-						} catch (FileNotFoundException e) {
-							e.printStackTrace();
+
+						if (flag) {
+							// store the img to sdcard.
+							try {
+								FileOutputStream fos = new FileOutputStream(
+										file);
+								result.compress(CompressFormat.JPEG, 100, fos);
+							} catch (FileNotFoundException e) {
+								e.printStackTrace();
+							}
+						} else {
+							// store the img to cache.
+							mIconCache.put(imgurl, new SoftReference<Bitmap>(
+									result));
+
 						}
 
 					}
