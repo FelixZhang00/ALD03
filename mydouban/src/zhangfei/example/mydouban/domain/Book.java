@@ -5,8 +5,9 @@ import android.graphics.Bitmap;
 public class Book {
 	private String title;
 	private String description;
-	private float rate;
-	private Bitmap img;
+	private float rating;
+	private String imgurl;
+	
 	public String getTitle() {
 		return title;
 	}
@@ -19,17 +20,17 @@ public class Book {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public float getRate() {
-		return rate;
+	public float getRating() {
+		return rating;
 	}
-	public void setRate(float rate) {
-		this.rate = rate;
+	public void setRating(float rate) {
+		this.rating = rate;
 	}
-	public Bitmap getImg() {
-		return img;
+	public String getImgurl() {
+		return imgurl;
 	}
-	public void setImg(Bitmap img) {
-		this.img = img;
+	public void setImgurl(String img) {
+		this.imgurl = img;
 	}
 	
 	

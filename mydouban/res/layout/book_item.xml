@@ -3,7 +3,7 @@
     android:id="@+id/list_item_layout"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/item_selector"
+    android:background="@drawable/book_item_selector"
     android:gravity="center_vertical"
     android:orientation="vertical" >
 
@@ -42,22 +42,31 @@
             android:orientation="vertical"
             android:paddingLeft="15dip" >
 
+            
             <TextView
                 android:id="@+id/book_title"
+                android:layout_marginTop="4dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxHeight="50dip"
                 android:textColor="@android:color/black"
-                android:textSize="20dp"
+                android:textSize="18dp"
+                android:text="book_title"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/book_description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="1.0"
                 android:maxHeight="60dip"
-                android:textColor="@android:color/black"
-                android:textSize="15dp" />
+                android:ellipsize="end"
+                android:textColor="@color/text_grey"
+                android:text="book_desc"
+                android:maxLines="2"
+                android:gravity="bottom"
+                android:layout_marginBottom="4dp"
+                android:textSize="14dp" />
         </LinearLayout>
     </LinearLayout>
 

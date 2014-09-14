@@ -10,6 +10,8 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
 
     <application
         android:allowBackup="true"
@@ -47,24 +49,25 @@
             android:label="@string/login"
             android:theme="@android:style/Theme.NoTitleBar" >
         </activity>
-          <activity
+        <activity
             android:name="zhangfei.example.mydouban.LoginActivity2"
             android:label="@string/login"
             android:theme="@android:style/Theme.NoTitleBar" >
         </activity>
-        <activity android:name="zhangfei.example.mydouban.MyInfoActivity"
-             android:label="@string/myinfo"
-            android:theme="@android:style/Theme.NoTitleBar" 
-            ></activity>
-         <activity android:name="zhangfei.example.mydouban.MyReadActivity"
-             android:label="@string/myread"
-            android:theme="@android:style/Theme.NoTitleBar" 
-            ></activity>
+        <activity
+            android:name="zhangfei.example.mydouban.MyInfoActivity"
+            android:label="@string/myinfo"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+        <activity
+            android:name="zhangfei.example.mydouban.MyReadActivity"
+            android:label="@string/myread"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
 
         <receiver android:name="zhangfei.example.mydouban.receiver.NetConnChangedReceiver" >
             <intent-filter android:priority="1000" >
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-                 
             </intent-filter>
         </receiver>
     </application>

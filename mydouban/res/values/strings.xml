@@ -9,5 +9,7 @@
     <string name="menu_item_clearuser">登出</string>
     <string name="myinfo">我的资料</string>
     <string name="myread">我读..</string>
+    <string name="link_text_auto"><a href="http://www.douban.com">赶紧去豆瓣网找找吧！</a></string>
+
 
 </resources>

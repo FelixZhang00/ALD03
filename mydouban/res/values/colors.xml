@@ -2,4 +2,5 @@
 <resources>
     <color name="backgroundcolor">#fffbfbfb</color>
     <color name="text_grey">#666666</color>
+    <color name="bg_yellow">#f2f1ee</color>
 </resources>
