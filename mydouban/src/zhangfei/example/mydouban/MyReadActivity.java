@@ -22,6 +22,10 @@ import com.google.gdata.util.ServiceException;
 import zhangfei.example.mydouban.Utils.LoadImageFromServer;
 import zhangfei.example.mydouban.Utils.LoadImageFromServer.LoadImageCallback;
 import zhangfei.example.mydouban.domain.Book;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.net.Uri;
@@ -64,6 +68,8 @@ public class MyReadActivity extends BaseMyActivity implements
 	private int mStartIndex;
 	private int mCount;
 	private int mbookMax = 0;
+	
+	private KillReceiver mKillReceiver;
 
 	/*
 	 * 豆瓣好像没有提供user的读书总数。不得不用其他方法来获得。
@@ -77,7 +83,8 @@ public class MyReadActivity extends BaseMyActivity implements
 		super.onCreate(savedInstanceState);
 		mIconCache = new HashMap<String, SoftReference<Bitmap>>();
 		mStartIndex = 1;
-
+		String packname= getApplicationContext().getPackageName();
+		System.out.println("packname->"+packname);
 		/*
 		 * @leaveit It should be adjusted by the size of screen.But I have
 		 * little money to buy many phones.
@@ -97,6 +104,11 @@ public class MyReadActivity extends BaseMyActivity implements
 
 		mPb_loading = (ProgressBar) findViewById(R.id.pb_myread);
 		mTv_loading = (TextView) findViewById(R.id.txt_loading);
+		
+		IntentFilter filter=new IntentFilter();
+		filter.addAction(getPackageName()+".action.kill_activity");
+		mKillReceiver=new KillReceiver();
+		this.registerReceiver(mKillReceiver, filter);
 	}
 
 	@Override
@@ -452,5 +464,24 @@ public class MyReadActivity extends BaseMyActivity implements
 		}
 
 	}
+	
+	private class KillReceiver extends BroadcastReceiver{
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			mIconCache=null;
+			showToast("内存不足,小弟先撤了:)");
+			finish();
+		}
+		
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		unregisterReceiver(mKillReceiver);
+	}
+	
+	
 
 }
