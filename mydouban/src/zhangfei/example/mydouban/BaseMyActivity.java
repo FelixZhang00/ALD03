@@ -241,4 +241,8 @@ public abstract class BaseMyActivity extends Activity {
 		}
 	}
 
+	public void showToast(String text) {
+		Toast.makeText(this, text, 0).show();
+	}
+
 }

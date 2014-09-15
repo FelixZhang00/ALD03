@@ -33,6 +33,10 @@ import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -42,7 +46,8 @@ import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class MyReadActivity extends BaseMyActivity {
+public class MyReadActivity extends BaseMyActivity implements
+		OnItemClickListener {
 
 	public static final String TAG = "MyReadActivity";
 	private TextView mTv_title_bar;
@@ -54,11 +59,30 @@ public class MyReadActivity extends BaseMyActivity {
 	private Map<String, SoftReference<Bitmap>> mIconCache;
 	private MyAdapter mAdapter;
 
+	private UserEntry mUserEntry;
+	private boolean mFlag_isloading = false;
+	private int mStartIndex;
+	private int mCount;
+	private int mbookMax = 0;
+
+	/*
+	 * 豆瓣好像没有提供user的读书总数。不得不用其他方法来获得。
+	 */
+	protected boolean mFlag_alreadyMax = false;
+	private int mTemp = 0;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setContentView(R.layout.myread_layout);
 		super.onCreate(savedInstanceState);
 		mIconCache = new HashMap<String, SoftReference<Bitmap>>();
+		mStartIndex = 1;
+
+		/*
+		 * @leaveit It should be adjusted by the size of screen.But I have
+		 * little money to buy many phones.
+		 */
+		mCount = 10;
 
 	}
 
@@ -77,6 +101,56 @@ public class MyReadActivity extends BaseMyActivity {
 
 	@Override
 	public void setupListener() {
+		mLv.setOnItemClickListener(this);
+		mLv.setOnScrollListener(new OnScrollListener() {
+
+			@Override
+			public void onScrollStateChanged(AbsListView view, int scrollState) {
+				switch (scrollState) {
+				case OnScrollListener.SCROLL_STATE_IDLE:
+					// the position of first item is 0.
+					int position = view.getLastVisiblePosition();
+					Log.i(TAG, "position->" + position);
+					int totalcount = mAdapter.getCount();
+					Log.i(TAG, "end->" + totalcount);
+
+					if (position == (totalcount - 1)) {
+						// Now the item is in the end,must load more.
+						if (mFlag_alreadyMax) {
+							showToast("已经到底了:)");
+							return;
+						}
+						mStartIndex += mCount;
+						Log.i(TAG, "max->" + mbookMax);
+						Log.i(TAG, "startindex->" + mStartIndex);
+						if (mFlag_isloading) {
+							return;
+						} else {
+							fillData();
+						}
+
+					}
+
+					break;
+
+				default:
+					break;
+				}
+
+			}
+
+			@Override
+			public void onScroll(AbsListView view, int firstVisibleItem,
+					int visibleItemCount, int totalItemCount) {
+				// TODO Auto-generated method stub
+
+			}
+		});
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
 		// TODO Auto-generated method stub
 
 	}
@@ -88,6 +162,7 @@ public class MyReadActivity extends BaseMyActivity {
 
 			@Override
 			protected void onPreExecute() {
+				mFlag_isloading = true;
 				mRl_loading_fromP.setVisibility(View.VISIBLE);
 				if (isNetworkAvail()) {
 					showLoading();
@@ -96,6 +171,7 @@ public class MyReadActivity extends BaseMyActivity {
 					mPb_loading.setVisibility(View.GONE);
 					mTv_loading.setText("加载失败，请返回重试");
 				}
+
 				super.onPreExecute();
 			}
 
@@ -118,16 +194,34 @@ public class MyReadActivity extends BaseMyActivity {
 			 * @throws ServiceException
 			 */
 			private List<Book> initBooks() throws IOException, ServiceException {
-				UserEntry ue = myService.getAuthorizedUser();
-				String uid = ue.getUid();
+				if (mUserEntry == null) {
+					mUserEntry = myService.getAuthorizedUser();
+				}
+				String uid = mUserEntry.getUid();
 				// 首先获取用户的 所有收集的信息
 				CollectionFeed feeds = myService.getUserCollections(uid,
-						"book", null, null, 1, 20);
-
+						"book", null, null, mStartIndex, mCount);
+				mbookMax += feeds.getEntries().size();
+				/*
+				 * 如果连续两次mbookMax 都不变，就表示已经到了最大值
+				 */
+				Log.i(TAG, "initBooks...mbookMax ->" + mbookMax);
+				if (mTemp == mbookMax) {
+					mFlag_alreadyMax=true;
+				}
+				mTemp=mbookMax;
+				
 				List<Book> books = new ArrayList<Book>();
 
 				for (CollectionEntry ce : feeds.getEntries()) {
 					Subject se = ce.getSubjectEntry();
+					// Log.i(TAG, "CollectionEntry->" + ce.getId());
+					// String str = se.toString();
+					// if (str != null) {
+					// Log.i(TAG, "Subject->" + str);
+					// } else {
+					// Log.i(TAG, "Subject is null");
+					// }
 					if (se != null) {
 						Book book = new Book();
 						book.setTitle(se.getTitle().getPlainText());
@@ -172,18 +266,24 @@ public class MyReadActivity extends BaseMyActivity {
 			protected void onPostExecute(List<Book> result) {
 				if (isNetworkAvail()) {
 					hideLoading();
-				}
-				if (result != null) {
-					mRl_loading_fromP.setVisibility(View.INVISIBLE);
-					mAdapter = new MyAdapter(result);
-					mLv.setAdapter(mAdapter);
-				} else {
-					// textview link hyperlink.
-					mLL_notice.setVisibility(View.VISIBLE);
-					mTv_link.setMovementMethod(LinkMovementMethod.getInstance());
+					if (result != null) {
+						mRl_loading_fromP.setVisibility(View.INVISIBLE);
+						if (mAdapter == null) {
+							mAdapter = new MyAdapter(result);
+							mLv.setAdapter(mAdapter);
+						} else {
+							mAdapter.adddMore(result);
+							mAdapter.notifyDataSetChanged();
+						}
+					} else {
+						// @leaveit textview link hyperlink. I failed.
+						mLL_notice.setVisibility(View.VISIBLE);
+						mTv_link.setMovementMethod(LinkMovementMethod
+								.getInstance());
 
+					}
 				}
-
+				mFlag_isloading = false;
 				super.onPostExecute(result);
 			}
 
@@ -195,6 +295,12 @@ public class MyReadActivity extends BaseMyActivity {
 
 		public MyAdapter(List<Book> books) {
 			this.books = books;
+		}
+
+		private void adddMore(List<Book> books) {
+			for (Book book : books) {
+				this.books.add(book);
+			}
 		}
 
 		@Override
@@ -244,9 +350,7 @@ public class MyReadActivity extends BaseMyActivity {
 
 			tv_title.setText(title);
 			tv_desc.setText(desc);
-			String filename = imgurl.substring(imgurl.lastIndexOf("/") + 1,
-					imgurl.length());
-			// loadimgMethod1(iv_book, imgurl, filename);
+			// loadimgMethod1(iv_book, imgurl);
 			loadimgMethod2(iv_book, imgurl);
 
 			return view;
@@ -254,6 +358,7 @@ public class MyReadActivity extends BaseMyActivity {
 
 		/**
 		 * Just for learning. Method2:load img from memory.
+		 * 
 		 * @param iv_book
 		 * @param imgurl
 		 */
@@ -267,12 +372,12 @@ public class MyReadActivity extends BaseMyActivity {
 						iv_book.setImageBitmap(bitmap);
 
 					} else {
-						loadimgFromS(iv_book, imgurl, null,false);
+						loadimgFromS(iv_book, imgurl, null, false);
 					}
 				}
 
 			} else {
-				loadimgFromS(iv_book, imgurl, null,false);
+				loadimgFromS(iv_book, imgurl, null, false);
 			}
 		}
 
@@ -283,8 +388,9 @@ public class MyReadActivity extends BaseMyActivity {
 		 * @param imgurl
 		 * @param filename
 		 */
-		private void loadimgMethod1(final ImageView iv_book, String imgurl,
-				String filename) {
+		private void loadimgMethod1(final ImageView iv_book, String imgurl) {
+			String filename = imgurl.substring(imgurl.lastIndexOf("/") + 1,
+					imgurl.length());
 			File file = new File(Environment.getExternalStorageDirectory()
 					.getPath(), filename);
 			if (file.exists()) {
@@ -292,7 +398,7 @@ public class MyReadActivity extends BaseMyActivity {
 				iv_book.setImageURI(Uri.fromFile(file));
 			} else {
 				Log.i(TAG, "load img from server.");
-				loadimgFromS(iv_book, imgurl, file,true);
+				loadimgFromS(iv_book, imgurl, file, true);
 
 			}
 		}
