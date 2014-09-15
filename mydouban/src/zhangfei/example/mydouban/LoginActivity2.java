@@ -128,11 +128,12 @@ public class LoginActivity2 extends BaseCheckNetActivity implements
 
 		public MyOnKeyListener(boolean flag) {
 			this.LOGOFF_ONKEY = flag;
+
 		}
 
 		@Override
 		public boolean onKey(View v, int keyCode, KeyEvent event) {
-			mKeyboard=v;
+			mKeyboard = v;
 			if (!LOGOFF_ONKEY) {
 				if (keyCode == KeyEvent.KEYCODE_ENTER) {
 					hideKeyBoard(v);
@@ -155,9 +156,11 @@ public class LoginActivity2 extends BaseCheckNetActivity implements
 	}
 
 	private void hideKeyBoard(View v) {
-		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-		if (imm.isActive()) {
-			imm.hideSoftInputFromWindow(v.getApplicationWindowToken(), 0);
+		if (v != null) {
+			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+			if (imm.isActive()) {
+				imm.hideSoftInputFromWindow(v.getApplicationWindowToken(), 0);
+			}
 		}
 
 	}
@@ -330,6 +333,7 @@ public class LoginActivity2 extends BaseCheckNetActivity implements
 								.show();
 						return;
 					} else {
+						//
 						Log.i(TAG, mResultCaptcha);
 						Log.i(TAG, captchavalue);
 						chooseLogin(username, pwd, captchavalue);

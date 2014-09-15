@@ -124,26 +124,29 @@ public class MyReadActivity extends BaseMyActivity implements
 				switch (scrollState) {
 				case OnScrollListener.SCROLL_STATE_IDLE:
 					// the position of first item is 0.
-					int position = view.getLastVisiblePosition();
-					Log.i(TAG, "position->" + position);
-					int totalcount = mAdapter.getCount();
-					Log.i(TAG, "end->" + totalcount);
+					if (isNetworkAvail()) {
 
-					if (position == (totalcount - 1)) {
-						// Now the item is in the end,must load more.
-						if (mFlag_alreadyMax) {
-							showToast("已经到底了:)");
-							return;
-						}
-						mStartIndex += mCount;
-						Log.i(TAG, "max->" + mbookMax);
-						Log.i(TAG, "startindex->" + mStartIndex);
-						if (mFlag_isloading) {
-							return;
-						} else {
-							fillData();
-						}
+						int position = view.getLastVisiblePosition();
+						Log.i(TAG, "position->" + position);
+						int totalcount = mAdapter.getCount();
+						Log.i(TAG, "end->" + totalcount);
 
+						if (position == (totalcount - 1)) {
+							// Now the item is in the end,must load more.
+							if (mFlag_alreadyMax) {
+								showToast("已经到底了:)");
+								return;
+							}
+							mStartIndex += mCount;
+							Log.i(TAG, "max->" + mbookMax);
+							Log.i(TAG, "startindex->" + mStartIndex);
+							if (mFlag_isloading) {
+								return;
+							} else {
+								fillData();
+							}
+
+						}
 					}
 
 					break;
@@ -184,7 +187,7 @@ public class MyReadActivity extends BaseMyActivity implements
 
 				} else {
 					mPb_loading.setVisibility(View.GONE);
-					mTv_loading.setText("加载失败，请返回重试");
+					mTv_loading.setText("加载失败，请重试");
 				}
 
 				super.onPreExecute();
@@ -305,7 +308,6 @@ public class MyReadActivity extends BaseMyActivity implements
 		}.execute();
 	}
 
-	
 	// 当按下菜单键的时候 创建出菜单对象
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -314,8 +316,6 @@ public class MyReadActivity extends BaseMyActivity implements
 
 		return super.onCreateOptionsMenu(menu);
 	}
-	
-	
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -330,13 +330,15 @@ public class MyReadActivity extends BaseMyActivity implements
 		return super.onOptionsItemSelected(item);
 	}
 
-
-
 	private void refreshView() {
-		mAdapter.notifyDataSetChanged();
+
+		// 自己调到自己的activity
+		Intent intent = new Intent(MyReadActivity.this, MyReadActivity.class);
+		startActivity(intent);
+		// close this activity
+		finish();
+
 	}
-
-
 
 	private class MyAdapter extends BaseAdapter {
 		private List<Book> books;

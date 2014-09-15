@@ -15,5 +15,7 @@ public class MyApp extends Application {
 		intent.setAction(packname+".action.kill_activity");
 		sendBroadcast(intent);
 	}
+	
+	
 
 }
