@@ -10,6 +10,6 @@
     <string name="myinfo">我的资料</string>
     <string name="myread">我读..</string>
     <string name="link_text_auto"><a href="http://www.douban.com">赶紧去豆瓣网找找吧！</a></string>
-
+    <string name="menu_item_flush">刷新</string>
 
 </resources>

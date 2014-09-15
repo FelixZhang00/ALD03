@@ -35,6 +35,9 @@ import android.os.Environment;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView.OnScrollListener;
@@ -68,7 +71,7 @@ public class MyReadActivity extends BaseMyActivity implements
 	private int mStartIndex;
 	private int mCount;
 	private int mbookMax = 0;
-	
+
 	private KillReceiver mKillReceiver;
 
 	/*
@@ -83,8 +86,8 @@ public class MyReadActivity extends BaseMyActivity implements
 		super.onCreate(savedInstanceState);
 		mIconCache = new HashMap<String, SoftReference<Bitmap>>();
 		mStartIndex = 1;
-		String packname= getApplicationContext().getPackageName();
-		System.out.println("packname->"+packname);
+		String packname = getApplicationContext().getPackageName();
+		System.out.println("packname->" + packname);
 		/*
 		 * @leaveit It should be adjusted by the size of screen.But I have
 		 * little money to buy many phones.
@@ -104,10 +107,10 @@ public class MyReadActivity extends BaseMyActivity implements
 
 		mPb_loading = (ProgressBar) findViewById(R.id.pb_myread);
 		mTv_loading = (TextView) findViewById(R.id.txt_loading);
-		
-		IntentFilter filter=new IntentFilter();
-		filter.addAction(getPackageName()+".action.kill_activity");
-		mKillReceiver=new KillReceiver();
+
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(getPackageName() + ".action.kill_activity");
+		mKillReceiver = new KillReceiver();
 		this.registerReceiver(mKillReceiver, filter);
 	}
 
@@ -198,6 +201,31 @@ public class MyReadActivity extends BaseMyActivity implements
 
 			}
 
+			@Override
+			protected void onPostExecute(List<Book> result) {
+				if (isNetworkAvail()) {
+					hideLoading();
+					if (result != null) {
+						mRl_loading_fromP.setVisibility(View.INVISIBLE);
+						if (mAdapter == null) {
+							mAdapter = new MyAdapter(result);
+							mLv.setAdapter(mAdapter);
+						} else {
+							mAdapter.adddMore(result);
+							mAdapter.notifyDataSetChanged();
+						}
+					} else {
+						// @leaveit textview link hyperlink. I failed.
+						mLL_notice.setVisibility(View.VISIBLE);
+						mTv_link.setMovementMethod(LinkMovementMethod
+								.getInstance());
+
+					}
+				}
+				mFlag_isloading = false;
+				super.onPostExecute(result);
+			}
+
 			/**
 			 * found books from douban server.
 			 * 
@@ -219,10 +247,10 @@ public class MyReadActivity extends BaseMyActivity implements
 				 */
 				Log.i(TAG, "initBooks...mbookMax ->" + mbookMax);
 				if (mTemp == mbookMax) {
-					mFlag_alreadyMax=true;
+					mFlag_alreadyMax = true;
 				}
-				mTemp=mbookMax;
-				
+				mTemp = mbookMax;
+
 				List<Book> books = new ArrayList<Book>();
 
 				for (CollectionEntry ce : feeds.getEntries()) {
@@ -274,33 +302,41 @@ public class MyReadActivity extends BaseMyActivity implements
 				return books;
 			}
 
-			@Override
-			protected void onPostExecute(List<Book> result) {
-				if (isNetworkAvail()) {
-					hideLoading();
-					if (result != null) {
-						mRl_loading_fromP.setVisibility(View.INVISIBLE);
-						if (mAdapter == null) {
-							mAdapter = new MyAdapter(result);
-							mLv.setAdapter(mAdapter);
-						} else {
-							mAdapter.adddMore(result);
-							mAdapter.notifyDataSetChanged();
-						}
-					} else {
-						// @leaveit textview link hyperlink. I failed.
-						mLL_notice.setVisibility(View.VISIBLE);
-						mTv_link.setMovementMethod(LinkMovementMethod
-								.getInstance());
-
-					}
-				}
-				mFlag_isloading = false;
-				super.onPostExecute(result);
-			}
-
 		}.execute();
 	}
+
+	
+	// 当按下菜单键的时候 创建出菜单对象
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = new MenuInflater(this);
+		inflater.inflate(R.menu.myread_menu, menu);
+
+		return super.onCreateOptionsMenu(menu);
+	}
+	
+	
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_item_flush:
+			refreshView();
+			break;
+
+		default:
+			break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+
+
+	private void refreshView() {
+		mAdapter.notifyDataSetChanged();
+	}
+
+
 
 	private class MyAdapter extends BaseAdapter {
 		private List<Book> books;
@@ -464,16 +500,16 @@ public class MyReadActivity extends BaseMyActivity implements
 		}
 
 	}
-	
-	private class KillReceiver extends BroadcastReceiver{
+
+	private class KillReceiver extends BroadcastReceiver {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			mIconCache=null;
+			mIconCache = null;
 			showToast("内存不足,小弟先撤了:)");
 			finish();
 		}
-		
+
 	}
 
 	@Override
@@ -481,7 +517,5 @@ public class MyReadActivity extends BaseMyActivity implements
 		super.onDestroy();
 		unregisterReceiver(mKillReceiver);
 	}
-	
-	
 
 }

@@ -1,8 +1,13 @@
 package zhangfei.example.mydouban.receiver;
 
+import java.util.List;
+
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningTaskInfo;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.widget.Toast;
@@ -25,17 +30,33 @@ public class NetConnChangedReceiver extends BroadcastReceiver {
 		if (activeNetInfo != null && activeNetInfo.isConnected()) {
 			// 有情提示网络类型
 			if (mobNetInfo != null && mobNetInfo.isConnected()) {
-				Toast.makeText(context, "您正在使用2g/3g/4g网络", 0).show();
+				showToast(context, "您正在使用2g/3g/4g网络");
 			} else if (wifiNetInfo != null && wifiNetInfo.isConnected()) {
-				//3g切换wifi时重复显示
-				// Toast.makeText(context, "您正在使用wifi", 0).show();
-
+				// 3g切换wifi时重复显示
+				// showToast(context, "您正在使用wifi");
 			}
 		} else {
-			Toast.makeText(context, "网络不可用", 0).show();
-
+			showToast(context, "网络不可用");
 		}
 
 	}
 
+	/**
+	 * When app is not seen ,don't shwo toast.
+	 * 
+	 * @param context
+	 */
+	private void showToast(Context context,String text) {
+		String packageName = context.getPackageName();
+		ActivityManager activityManager = (ActivityManager) context
+				.getSystemService(Context.ACTIVITY_SERVICE);
+		List<RunningTaskInfo> appTask = activityManager.getRunningTasks(1);
+		String paknameCurrent = appTask.get(0).topActivity.getPackageName();
+		String paknameThis=context.getPackageName();
+		System.out.println(paknameCurrent);
+		if (paknameThis.equals(paknameCurrent)) {
+			Toast.makeText(context, text, 0).show();
+		}
+
+	}
 }
