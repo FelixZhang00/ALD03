@@ -105,6 +105,7 @@
                         android:layout_height="40dip"
                         android:layout_below="@id/EditTextCaptchaValue"
                         android:adjustViewBounds="false"
+                        android:src="@drawable/captha"
                         android:scaleType="fitXY" />
                 </LinearLayout>
 

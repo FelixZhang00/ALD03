@@ -51,10 +51,10 @@ public class TestNet extends AndroidTestCase {
 	public void testLogin() throws Exception {
 
 		// 1.我们去豆瓣申请一个api key secret.
-		String apiKey = "0c51c1ba21ad8cfd24f5452e6508a6f7";
-		String secret = "359e16e5e5c62b6e";
+		String apiKey = "088575cb2541e15d199061616fc5a417";
+		String secret = "60cad41f3af7aac3";
 
-		DoubanService myService = new DoubanService("黑马小瓣瓣", apiKey, secret);
+		DoubanService myService = new DoubanService("douban的android客户端嘻嘻", apiKey, secret);
 
 		System.out
 				.println("please paste the url in your webbrowser, complete the authorization then come back:");

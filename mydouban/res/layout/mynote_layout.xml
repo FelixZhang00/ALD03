@@ -13,9 +13,7 @@
         android:id="@+id/mainRL"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1.0" 
-        android:background="@color/bg_yellow"
-        >
+        android:layout_weight="1.0" >
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -24,15 +22,12 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                >
+                android:layout_height="match_parent" >
 
                 <LinearLayout
                     android:id="@+id/ll_myread_notice"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    
-                    
                     android:gravity="center"
                     android:orientation="vertical"
                     android:visibility="invisible" >
@@ -40,8 +35,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        
-                        android:text="还没有想看的书?"
+                        android:text="还没有日记?"
                         android:textColor="@color/text_grey"
                         android:textSize="20sp" />
 
@@ -51,26 +45,50 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:autoLink="all"
-                        android:text="@string/link_text_auto_read"
+                        android:text="@string/link_text_auto_note"
                         android:textColor="@color/text_grey"
                         android:textSize="20sp" />
                 </LinearLayout>
 
                 <ListView
-                    android:id="@+id/lv_myread_subject"
+                    android:id="@+id/lv_mynote_subject"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
+                    android:layout_above="@+id/ll_mynote_bottom"
                     android:layout_marginLeft="5.0dip"
                     android:layout_marginRight="3.0dip"
                     android:layout_weight="1.0"
                     android:cacheColorHint="#00000000"
-                    android:divider="@drawable/divider_line"
+                    android:divider="@color/bg_yellow"
+                    android:dividerHeight="8dp"
+                    android:fastScrollEnabled="true"
                     android:listSelector="@android:color/transparent"
                     android:paddingTop="5.0dip"
-                    android:scrollbarStyle="outsideInset" 
-                    android:fastScrollEnabled="true"
-                    >
+                    android:scrollbarStyle="outsideInset" >
                 </ListView>
+
+                <LinearLayout
+                    android:id="@+id/ll_mynote_bottom"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal" >
+
+                    <Button
+                        android:id="@+id/btn_mynote_pre"
+                        android:layout_width="100dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="20dp"
+                        android:text="上一页" />
+
+                    <Button
+                        android:id="@+id/btn_mynote_next"
+                        android:layout_width="100dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:text="下一页" />
+                </LinearLayout>
             </RelativeLayout>
         </FrameLayout>
 

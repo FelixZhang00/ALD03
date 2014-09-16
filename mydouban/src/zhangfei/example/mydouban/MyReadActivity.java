@@ -57,12 +57,11 @@ public class MyReadActivity extends BaseMyActivity implements
 		OnItemClickListener {
 
 	public static final String TAG = "MyReadActivity";
-	private TextView mTv_title_bar;
-	private ListView mLv;
-	private TextView mTv_link;
-	private LinearLayout mLL_notice;
-	private ProgressBar mPb_loading;
-	private TextView mTv_loading;
+	private TextView wTv_title_bar;
+	private ListView wLv;
+	private TextView wTv_link;
+	private LinearLayout wLL_notice;
+
 	private Map<String, SoftReference<Bitmap>> mIconCache;
 	private MyAdapter mAdapter;
 
@@ -73,6 +72,7 @@ public class MyReadActivity extends BaseMyActivity implements
 	private int mbookMax = 0;
 
 	private KillReceiver mKillReceiver;
+	private IntentFilter filter;
 
 	/*
 	 * 豆瓣好像没有提供user的读书总数。不得不用其他方法来获得。
@@ -84,6 +84,7 @@ public class MyReadActivity extends BaseMyActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		setContentView(R.layout.myread_layout);
 		super.onCreate(savedInstanceState);
+
 		mIconCache = new HashMap<String, SoftReference<Bitmap>>();
 		mStartIndex = 1;
 		String packname = getApplicationContext().getPackageName();
@@ -99,16 +100,17 @@ public class MyReadActivity extends BaseMyActivity implements
 	@Override
 	public void setupView() {
 		mRl_loading_fromP = (RelativeLayout) findViewById(R.id.rl_myread_loading);
-		mTv_title_bar = (TextView) findViewById(R.id.tv_titlebar_tietle);
+		wTv_title_bar = (TextView) findViewById(R.id.tv_titlebar_tietle);
 		mTv_user_fromP = (TextView) findViewById(R.id.tv_titlebar_user);
-		mLL_notice = (LinearLayout) findViewById(R.id.ll_myread_notice);
-		mLv = (ListView) findViewById(R.id.lv_myread_subject);
-		mTv_link = (TextView) findViewById(R.id.tv_myread_link);
+		mPb_loadingFP = (ProgressBar) findViewById(R.id.pb_myread);
+		mTv_loadingFP = (TextView) findViewById(R.id.txt_loading);
 
-		mPb_loading = (ProgressBar) findViewById(R.id.pb_myread);
-		mTv_loading = (TextView) findViewById(R.id.txt_loading);
+		wLL_notice = (LinearLayout) findViewById(R.id.ll_myread_notice);
+		wLv = (ListView) findViewById(R.id.lv_myread_subject);
+		wTv_link = (TextView) findViewById(R.id.tv_myread_link);
 
-		IntentFilter filter = new IntentFilter();
+
+		filter = new IntentFilter();
 		filter.addAction(getPackageName() + ".action.kill_activity");
 		mKillReceiver = new KillReceiver();
 		this.registerReceiver(mKillReceiver, filter);
@@ -116,8 +118,8 @@ public class MyReadActivity extends BaseMyActivity implements
 
 	@Override
 	public void setupListener() {
-		mLv.setOnItemClickListener(this);
-		mLv.setOnScrollListener(new OnScrollListener() {
+		wLv.setOnItemClickListener(this);
+		wLv.setOnScrollListener(new OnScrollListener() {
 
 			@Override
 			public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -175,7 +177,7 @@ public class MyReadActivity extends BaseMyActivity implements
 
 	@Override
 	public void fillData() {
-		mTv_title_bar.setText("我读..");
+		wTv_title_bar.setText("我读..");
 		new AsyncTask<Void, Void, List<Book>>() {
 
 			@Override
@@ -186,8 +188,8 @@ public class MyReadActivity extends BaseMyActivity implements
 					showLoading();
 
 				} else {
-					mPb_loading.setVisibility(View.GONE);
-					mTv_loading.setText("加载失败，请重试");
+					mPb_loadingFP.setVisibility(View.GONE);
+					mTv_loadingFP.setText("加载失败，请重试");
 				}
 
 				super.onPreExecute();
@@ -199,6 +201,8 @@ public class MyReadActivity extends BaseMyActivity implements
 					return initBooks();
 				} catch (Exception e) {
 					e.printStackTrace();
+					
+					
 					return null;
 				}
 
@@ -206,27 +210,37 @@ public class MyReadActivity extends BaseMyActivity implements
 
 			@Override
 			protected void onPostExecute(List<Book> result) {
-				if (isNetworkAvail()) {
-					hideLoading();
-					if (result != null) {
-						mRl_loading_fromP.setVisibility(View.INVISIBLE);
-						if (mAdapter == null) {
-							mAdapter = new MyAdapter(result);
-							mLv.setAdapter(mAdapter);
-						} else {
-							mAdapter.adddMore(result);
-							mAdapter.notifyDataSetChanged();
-						}
-					} else {
-						// @leaveit textview link hyperlink. I failed.
-						mLL_notice.setVisibility(View.VISIBLE);
-						mTv_link.setMovementMethod(LinkMovementMethod
-								.getInstance());
-
-					}
-				}
+				singleOutResult(result);
 				mFlag_isloading = false;
 				super.onPostExecute(result);
+			}
+			
+			
+
+			private void singleOutResult(List<Book> result) {
+				if (result == null) {
+					// 从服务器获取数据失败
+					hideLoading();
+					mPb_loadingFP.setVisibility(View.GONE);
+					mTv_loadingFP.setText("加载失败，请重试");
+				} else if (result.isEmpty()) {
+					// 能获取到数据，但为空
+					// @leaveit textview link hyperlink. I failed.
+					wLL_notice.setVisibility(View.VISIBLE);
+					wTv_link.setMovementMethod(LinkMovementMethod.getInstance());
+					mRl_loading_fromP.setVisibility(View.INVISIBLE);
+					hideLoading();
+				} else {
+					// 能获取到数据
+					mRl_loading_fromP.setVisibility(View.INVISIBLE);
+					if (mAdapter == null) {
+						mAdapter = new MyAdapter(result);
+						wLv.setAdapter(mAdapter);
+					} else {
+						mAdapter.adddMore(result);
+						mAdapter.notifyDataSetChanged();
+					}
+				}
 			}
 
 			/**

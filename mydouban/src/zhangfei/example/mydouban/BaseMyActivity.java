@@ -24,6 +24,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.ScaleAnimation;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,10 +41,12 @@ public abstract class BaseMyActivity extends Activity {
 	public DoubanService myService;
 	private NetConnChangedReceiver mNetReceiver;
 	private SharedPreferences sp;
-
-	private ImageButton mIbtn_back;
+	public Context mContextFP;
+	private ImageButton wIbtn_back;
 	public TextView mTv_user_fromP;
 	public RelativeLayout mRl_loading_fromP;
+	public ProgressBar mPb_loadingFP;
+	public TextView mTv_loadingFP;
 	private Handler handler = new Handler() {
 
 		@Override
@@ -86,8 +89,8 @@ public abstract class BaseMyActivity extends Activity {
 
 	private void ctrlTitleBar() {
 		showUser();
-		mIbtn_back = (ImageButton) findViewById(R.id.back_button);
-		mIbtn_back.setOnClickListener(new OnClickListener() {
+		wIbtn_back = (ImageButton) findViewById(R.id.back_button);
+		wIbtn_back.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
@@ -165,10 +168,18 @@ public abstract class BaseMyActivity extends Activity {
 			if (isNetworkAvail()) {
 				// 网络改变了 ，从无到有
 				showUser();
+				// change the loading status
+				// showLoading();
+				// mRl_loading_fromP.setVisibility(View.INVISIBLE);
 			} else {
 				// 将账户信息改为离线
 				String text = "(" + "<font color='red'>离线</font>" + ")";
 				mTv_user_fromP.setText(Html.fromHtml(text));
+				// change the loading status
+				hideLoading();
+				 mRl_loading_fromP.setVisibility(View.VISIBLE);
+				 mPb_loadingFP.setVisibility(View.GONE);
+				 mTv_loadingFP.setText("加载失败，请返回重试");
 			}
 
 		}

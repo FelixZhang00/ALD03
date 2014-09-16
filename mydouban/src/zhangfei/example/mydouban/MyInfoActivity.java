@@ -30,8 +30,7 @@ public class MyInfoActivity extends BaseMyActivity {
 	private TextView mTv_address;
 	private TextView mTv_title;
 
-	private ProgressBar mPb_loading;
-	private TextView mTv_loading;
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +49,8 @@ public class MyInfoActivity extends BaseMyActivity {
 		mTv_address = (TextView) findViewById(R.id.txtUserAddress);
 		mTv_userdesc = (TextView) findViewById(R.id.txtUserDescription);
 
-		mPb_loading = (ProgressBar) findViewById(R.id.pb_myinfo);
-		mTv_loading = (TextView) findViewById(R.id.txt_loading);
+		mPb_loadingFP = (ProgressBar) findViewById(R.id.pb_myinfo);
+		mTv_loadingFP = (TextView) findViewById(R.id.txt_loading);
 
 	}
 
@@ -75,8 +74,8 @@ public class MyInfoActivity extends BaseMyActivity {
 					showLoading();
 
 				} else {
-					mPb_loading.setVisibility(View.GONE);
-					mTv_loading.setText("加载失败，请返回重试");
+					mPb_loadingFP.setVisibility(View.GONE);
+					mTv_loadingFP.setText("加载失败，请返回重试");
 				}
 
 				super.onPreExecute();
