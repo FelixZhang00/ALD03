@@ -43,8 +43,8 @@ public class MyNoteActivity extends BaseMyActivity implements OnClickListener {
 	/*
 	 * 豆瓣好像没有提供user的日记总数。不得不用其他方法来获得。
 	 */
+	protected boolean mFlag_End_Page = false;
 	protected boolean mFlag_alreadyMax = false;
-	private int mTemp = 0;
 
 	// 第一次fillData，发现没有日记,就把mFlag_No_Note 置为false
 	private int mNum_fill = 0;
@@ -87,39 +87,44 @@ public class MyNoteActivity extends BaseMyActivity implements OnClickListener {
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.btn_mynote_next:
-			System.out.println("mStartIndex begin next ->"+mStartIndex);
-			if (isNetworkAvail()) {
-				if (!mFlag_isloading) {
-					// 加载完一页后才允许点按
+			System.out.println("mStartIndex begin next ->" + mStartIndex);
 
-					if (mNoteMax != 0) {
-						if (!mFlag_alreadyMax) {
-							mStartIndex += mCount;
-							fillData();
-							
-						} else {
-							showToast("已经是最后一页:)");
-						}
+			if (!mFlag_isloading) {
+				// 加载完一页后才允许点按
+
+				if (mNoteMax != 0) {
+					if (!mFlag_End_Page) {
+						// 如果当前已经是最后一页了，还需要在从服务器上获取一次数据，才知道是否是最后一页
+						mStartIndex += mCount;
+						fillData();
 
 					} else {
-						// user没有note
+						showToast("已经是最后一页:)");
 					}
-					System.out.println("mStartIndex after next->"+mStartIndex);					
-
+				} else {
+					// user没有note
 				}
+				System.out.println("mStartIndex after next->" + mStartIndex);
 			}
 
 			break;
 		case R.id.btn_mynote_pre:
 
-			System.out.println("mStartIndex begin pre->"+mStartIndex);
+			System.out.println("mStartIndex begin pre->" + mStartIndex);
 			if (mStartIndex > mCount) {
+				if (mFlag_End_Page) {
+					// 如果当前在最后一页的话，需要再减一次
+					mStartIndex -= mCount;
+				}
+				mFlag_End_Page = false;
 				mStartIndex -= mCount;
 				fillData();
+
 			} else {
 				showToast("已经是第一页:)");
+
 			}
-			System.out.println("mStartIndex after pre->"+mStartIndex);
+			System.out.println("mStartIndex after pre->" + mStartIndex);
 			break;
 
 		default:
@@ -232,6 +237,7 @@ public class MyNoteActivity extends BaseMyActivity implements OnClickListener {
 						wTv_link.setMovementMethod(LinkMovementMethod
 								.getInstance());
 					} else {
+						mFlag_End_Page = true;
 						mFlag_alreadyMax = true;
 						showToast("已经是最后一页:)");
 					}
@@ -241,7 +247,9 @@ public class MyNoteActivity extends BaseMyActivity implements OnClickListener {
 				} else {
 					// 能获取到数据
 					mRl_loading_fromP.setVisibility(View.INVISIBLE);
-					mNoteMax += result.size();
+					if (!mFlag_alreadyMax) {
+						mNoteMax += result.size();
+					}
 					MyAdapter adapter = new MyAdapter(result);
 					// @leaveit 变化数据太突兀，给listview设置动画
 
