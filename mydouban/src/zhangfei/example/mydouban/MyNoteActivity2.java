@@ -3,7 +3,9 @@ package zhangfei.example.mydouban;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gdata.data.TextContent;
 import com.google.gdata.data.douban.Attribute;
@@ -39,10 +41,9 @@ import android.widget.TextView;
 
 /**
  * @author tmac
- * @deprecated change to MyNoteActivity2 当 把最后一页的数据删光之后，回到第一页，再点击上一页显示
- *             “加载失败”，并且删除这一页的item后虽然成功了，但没有更新listview
+ *
  */
-public class MyNoteActivity extends BaseMyActivity implements OnClickListener {
+public class MyNoteActivity2 extends BaseMyActivity implements OnClickListener {
 
 	private static final String TAG = "MyNoteActivity";
 	private TextView wTv_title_bar;
@@ -54,8 +55,13 @@ public class MyNoteActivity extends BaseMyActivity implements OnClickListener {
 	private ImageButton wIbtn_add;
 	private ProgressDialog wPd;
 
+	private MyAdapter mAdapter;
 	private UserEntry mUserEntry;
-	private List<Note> mNotesTemp;
+	private List<Note> mNotesTemp; // 只保存上一次 一页的信息
+	private int mNumPage = 1; // 当前页号
+	private int mMaxPage = 1; // 最大页号
+	private int mNumItems = 0;// 当前页的条目数
+	private Map<Integer, List<Note>> mMapPage; // 每页对应一组note数据
 	private int mPosition;
 	// private MyAdapter mAdapter;
 
@@ -73,6 +79,7 @@ public class MyNoteActivity extends BaseMyActivity implements OnClickListener {
 	private boolean mFlag_Server_Error = false;
 	private boolean mFlag_isloading = false;
 	protected boolean mFlag_delete_note;
+	private boolean mFlag_NotesTemp = false; // mNotesTemp 是否被设置的标志
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +88,7 @@ public class MyNoteActivity extends BaseMyActivity implements OnClickListener {
 		// 应该根据屏幕尺寸，选择每页的数目
 		mCount = 7;
 		mStartIndex = 1;
-		fillData(false);
+		mMapPage = new HashMap<Integer, List<Note>>();
 	}
 
 	@Override
@@ -136,7 +143,7 @@ public class MyNoteActivity extends BaseMyActivity implements OnClickListener {
 
 			@Override
 			protected void onPreExecute() {
-				wPd = new ProgressDialog(MyNoteActivity.this);
+				wPd = new ProgressDialog(MyNoteActivity2.this);
 				wPd.setMessage("正在删除...");
 				wPd.show();
 				super.onPreExecute();
@@ -160,8 +167,15 @@ public class MyNoteActivity extends BaseMyActivity implements OnClickListener {
 				if (result) {
 					showToast("删除成功");
 					mNoteMax--;
+					mNumItems--;
 					mFlag_delete_note = true;
-					fillData(false);
+					// 当该页上的所有条目都删除的时候，调用 上一页的方法
+					if (mNumItems == 0) {
+						mStartIndex -= mCount;
+						mFlag_End_Page = false;
+					}
+					fillData();
+
 				} else {
 					showToast("删除失败，请重试:(");
 				}
@@ -193,44 +207,10 @@ public class MyNoteActivity extends BaseMyActivity implements OnClickListener {
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.btn_mynote_next:
-			System.out.println("mStartIndex begin next ->" + mStartIndex);
-
-			if (!mFlag_isloading) {
-				// 加载完一页后才允许点按
-
-				if (mNoteMax != 0) {
-					if (!mFlag_End_Page) {
-						// 如果当前已经是最后一页了，还需要在从服务器上获取一次数据，才知道是否是最后一页
-						// mStartIndex += mCount;
-						fillData(true);
-
-					} else {
-						showToast("已经是最后一页:)");
-					}
-				} else {
-					// user没有note
-				}
-				System.out.println("mStartIndex after next->" + mStartIndex);
-			}
-
+			goNextPage();
 			break;
 		case R.id.btn_mynote_pre:
-
-			System.out.println("mStartIndex begin pre->" + mStartIndex);
-			if (mStartIndex > mCount) {
-				if (mFlag_End_Page) {
-					// 如果当前在最后一页的话，需要再减一次
-					mStartIndex -= mCount;
-				}
-				mFlag_End_Page = false;
-				mStartIndex -= mCount;
-				fillData(false);
-
-			} else {
-				showToast("已经是第一页:)");
-
-			}
-			System.out.println("mStartIndex after pre->" + mStartIndex);
+			goPrePage();
 			break;
 
 		case R.id.btn_titlebar_add:
@@ -246,23 +226,53 @@ public class MyNoteActivity extends BaseMyActivity implements OnClickListener {
 
 	}
 
-	/*
-	 * 
-	 * 
-	 * @p flag :true 表示点击下一页按钮 扩大mStartIndex.
-	 */
+	private void goNextPage() {
+		System.out.println("mStartIndex begin next ->" + mStartIndex);
 
-	/**
-	 * 可以是此方法更健壮，增加flag，以此区分 是点击上一页后、点击下一页后 还是删除日记后 加载数据
-	 * 
-	 * @param flag
-	 *            :true 表示点击下一页按钮 扩大mStartIndex.
-	 */
-	private void fillData(boolean flag) {
-		wTv_title_bar.setText("我的日记");
-		if (flag) {
-			mStartIndex += mCount;
+		if (!mFlag_isloading) {
+			// 加载完一页后才允许点按
+
+			if (mNoteMax != 0) {
+				if (!mFlag_End_Page) {
+					// 如果当前已经是最后一页了，还需要在从服务器上获取一次数据，才知道是否是最后一页
+					mNumPage++;
+					mStartIndex += mCount;
+					fillData();
+				} else {
+					showToast("已经是最后一页:)");
+				}
+			} else {
+				// user没有note
+			}
+			System.out.println("mStartIndex after next->" + mStartIndex);
 		}
+	}
+
+	private void goPrePage() {
+		System.out.println("mStartIndex begin pre->" + mStartIndex);
+		if (!mFlag_isloading) {
+			if (mStartIndex > mCount) {
+				if (mFlag_End_Page) {
+					// 如果当前在最后一页的话，需要再减一次
+					// mStartIndex -= mCount;
+				}
+				mFlag_End_Page = false;
+				mStartIndex -= mCount;
+				mNumPage--;
+				fillData();
+
+			} else {
+				showToast("已经是第一页:)");
+
+			}
+
+		}
+	}
+
+	@Override
+	public void fillData() {
+		wTv_title_bar.setText("我的日记");
+
 		new AsyncTask<Void, Void, List<Note>>() {
 
 			@Override
@@ -295,119 +305,143 @@ public class MyNoteActivity extends BaseMyActivity implements OnClickListener {
 				super.onPostExecute(result);
 				singleOutResult(result);
 				mFlag_isloading = false;
-
-			}
-
-			/**
-			 * 从服务器获取日记信息
-			 * 
-			 * @return
-			 * @throws Exception
-			 */
-			private List<Note> initNotes() throws Exception {
-				if (mUserEntry == null) {
-					mUserEntry = myService.getAuthorizedUser();
-				}
-				String uid = mUserEntry.getUid();
-				NoteFeed noteFeed = myService.getUserNotes(uid, mStartIndex,
-						mCount);
-
-				List<Note> notes = new ArrayList<Note>();
-				for (NoteEntry ne : noteFeed.getEntries()) {
-					Note note = new Note();
-					note.setEntry(ne);
-					note.setTitle(ne.getTitle().getPlainText());
-
-					if (ne.getContent() != null) {
-						note.setContent(((TextContent) ne.getContent())
-								.getContent().getPlainText());
-					}
-
-					for (Attribute attr : ne.getAttributes()) {
-						if (attr.getName().equals("can_reply")) {
-							note.setCan_reply(attr.getContent());
-						} else if (attr.getName().equals("")) {
-							note.setPrivacy(attr.getContent());
-						}
-
-					}
-					note.setPubdate(ne.getPublished().toString());
-					notes.add(note);
-				}
-				return notes;
-			}
-
-			/**
-			 * 分拣出result的类型，在UI上做相应的处理
-			 * 
-			 * @param result
-			 */
-			private void singleOutResult(List<Note> result) {
-				// if (!result.isEmpty()) {
-				//
-				// } else if (result.isEmpty()&&result != null) {
-				//
-				// } else if (result == null) {
-				//
-				// }
-
-				if (result == null) {
-					// 从服务器获取数据失败
-					hideLoading();
-					mPb_loadingFP.setVisibility(View.GONE);
-					mTv_loadingFP.setText("加载失败，请重试");
-					mFlag_Server_Error = true;
-				} else if (result.isEmpty()) {
-
-					// 能获取到数据，但为空
-					if (mNoteMax == 0) {
-						wLL_notice.setVisibility(View.VISIBLE);
-						wTv_link.setMovementMethod(LinkMovementMethod
-								.getInstance());
-					} else if (mFlag_delete_note) {
-						// 处理在最后一页删除日记的情况
-						mFlag_delete_note = false;
-						if (mNotesTemp != null) {
-							mNotesTemp.remove(mPosition);
-							MyAdapter adapter = new MyAdapter(mNotesTemp);
-							// @leaveit 变化数据太突兀，给listview设置动画
-
-							wLv.setAdapter(adapter);
-						}
-
-					} else {
-						mFlag_End_Page = true;
-						mFlag_alreadyMax = true;
-						showToast("已经是最后一页:)");
-					}
-
-					mRl_loading_fromP.setVisibility(View.INVISIBLE);
-
-					hideLoading();
-				} else {
-					// 能获取到数据
-					mRl_loading_fromP.setVisibility(View.INVISIBLE);
-					if (!mFlag_alreadyMax) {
-						mNoteMax += result.size();
-					}
-					mNotesTemp = result;
-					MyAdapter adapter = new MyAdapter(result);
-					// @leaveit 变化数据太突兀，给listview设置动画
-
-					wLv.setAdapter(adapter);
-
-				}
 			}
 
 		}.execute();
 
 	}
 
+	/**
+	 * 从服务器获取日记信息
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	private List<Note> initNotes() throws Exception {
+		if (mUserEntry == null) {
+			mUserEntry = myService.getAuthorizedUser();
+		}
+		String uid = mUserEntry.getUid();
+		NoteFeed noteFeed = myService.getUserNotes(uid, mStartIndex, mCount);
+
+		List<Note> notes = new ArrayList<Note>();
+		for (NoteEntry ne : noteFeed.getEntries()) {
+			Note note = new Note();
+			note.setEntry(ne);
+			note.setTitle(ne.getTitle().getPlainText());
+
+			if (ne.getContent() != null) {
+				note.setContent(((TextContent) ne.getContent()).getContent()
+						.getPlainText());
+			}
+
+			for (Attribute attr : ne.getAttributes()) {
+				if (attr.getName().equals("can_reply")) {
+					note.setCan_reply(attr.getContent());
+				} else if (attr.getName().equals("")) {
+					note.setPrivacy(attr.getContent());
+				}
+
+			}
+			note.setPubdate(ne.getPublished().toString());
+			notes.add(note);
+		}
+		return notes;
+	}
+
+	/**
+	 * 分拣出result的类型，在UI上做相应的处理
+	 * 
+	 * @param result
+	 */
+	private void singleOutResult(List<Note> result) {
+
+		if (result == null) {
+			// 从服务器获取数据失败
+			hideLoading();
+			mPb_loadingFP.setVisibility(View.GONE);
+			mTv_loadingFP.setText("加载失败，请重试");
+			mFlag_Server_Error = true;
+		} else if (result.isEmpty()) {
+
+			// 能获取到数据，但为空
+			if (mNoteMax == 0) {
+				wLL_notice.setVisibility(View.VISIBLE);
+				wTv_link.setMovementMethod(LinkMovementMethod.getInstance());
+			} else {
+				mFlag_End_Page = true;
+				mStartIndex -= mCount;
+				mFlag_alreadyMax = true;
+				showToast("已经是最后一页:)");
+			}
+			mRl_loading_fromP.setVisibility(View.INVISIBLE);
+			hideLoading();
+		} else {
+			// 能获取到数据
+			mNumItems = result.size();
+			mRl_loading_fromP.setVisibility(View.INVISIBLE);
+			if (!mFlag_alreadyMax) {
+				mNoteMax += result.size();
+			}
+
+			setupMyAdapter(result);
+
+		}
+	}
+
+	/**
+	 * 设置adapter
+	 * 
+	 * @param result
+	 */
+	private void setupMyAdapter(List<Note> result) {
+		if (mAdapter != null) {
+
+			if (mMapPage.containsValue(result)) {
+				// 向前翻页
+			} else {
+				if (mFlag_delete_note) {
+					mMapPage.remove(mNumPage);
+					mMapPage.put(mNumPage, result);
+					mFlag_delete_note = false;
+
+				} else {
+					mMapPage.put(mMaxPage++, result);
+				}
+			}
+			mAdapter.changePage(result);
+			wLv.setAdapter(mAdapter);
+
+		} else {
+			mMapPage.put(mMaxPage++, result);
+			mAdapter = new MyAdapter();
+			wLv.setAdapter(mAdapter);
+		}
+
+	}
+
 	class MyAdapter extends BaseAdapter {
 		private List<Note> notes;
 
-		public MyAdapter(List<Note> notes) {
+		//
+		// public MyAdapter(List<Note> notes) {
+		// super();
+		// this.notes = notes;
+		// }
+
+		public MyAdapter() {
 			super();
+			notes = mMapPage.get(mNumPage);
+
+		}
+
+		private void prePage(List<Note> notes) {
+
+		}
+
+		private void changePage(List<Note> notes) {
+			this.notes.clear();
+			this.notes = null;
 			this.notes = notes;
 		}
 
@@ -433,7 +467,7 @@ public class MyNoteActivity extends BaseMyActivity implements OnClickListener {
 				view = convertView;
 
 			} else {
-				view = View.inflate(MyNoteActivity.this, R.layout.note_item,
+				view = View.inflate(MyNoteActivity2.this, R.layout.note_item,
 						null);
 				TextView tv_title = (TextView) view
 						.findViewById(R.id.tv_note_item_title);
@@ -441,12 +475,6 @@ public class MyNoteActivity extends BaseMyActivity implements OnClickListener {
 			}
 			return view;
 		}
-
-	}
-
-	@Override
-	public void fillData() {
-		// TODO Auto-generated method stub
 
 	}
 

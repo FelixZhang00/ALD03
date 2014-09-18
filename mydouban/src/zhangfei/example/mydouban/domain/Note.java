@@ -1,5 +1,7 @@
 package zhangfei.example.mydouban.domain;
 
+import com.google.gdata.data.douban.NoteEntry;
+
 public class Note {
 
 	private String content;
@@ -7,7 +9,7 @@ public class Note {
 	private String privacy;
 	private String can_reply;
 	private String pubdate;
-
+	private NoteEntry entry;
 	public Note() {
 		super();
 	}
@@ -20,6 +22,16 @@ public class Note {
 		this.privacy = privacy;
 		this.can_reply = can_reply;
 		this.pubdate = pubdate;
+	}
+
+	
+	
+	public NoteEntry getEntry() {
+		return entry;
+	}
+
+	public void setEntry(NoteEntry entry) {
+		this.entry = entry;
 	}
 
 	public String getContent() {

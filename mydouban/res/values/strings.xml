@@ -13,5 +13,8 @@
     <string name="link_text_auto_note"><a href="http://www.douban.com">赶紧去豆瓣网写一篇吧！</a></string>
     <string name="menu_item_flush">刷新</string>
     <string name="mynote">我的日记</string>
+    
+    <string name="menu_item_edit">修改日记</string>
+    <string name="menu_item_delete">删除日记</string>
 
 </resources>

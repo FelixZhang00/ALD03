@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:padding="0px" >
 
-    <include layout="@layout/titlebar" />
+    <include layout="@layout/titlebar_edit" />
 
     <RelativeLayout
         android:id="@+id/mainRL"

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" >
+
+    <LinearLayout
+        android:id="@+id/title_bar"
+        android:layout_width="fill_parent"
+        android:layout_height="45.0dip"
+        android:background="@drawable/title_bg_night"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" >
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/app_icon" />
+
+        <LinearLayout
+            android:layout_width="0.0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:gravity="bottom"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/tv_titlebar_tietle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="2.0dip"
+                android:ellipsize="end"
+                android:gravity="bottom"
+                android:singleLine="true"
+                android:text="@string/app_name"
+                android:textColor="@android:color/white"
+                android:textSize="18.0sp" />
+
+            <TextView
+                android:id="@+id/tv_titlebar_user"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="3dp"
+                android:gravity="bottom"
+                android:singleLine="true"
+                android:textColor="@color/backgroundcolor"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btn_titlebar_add"
+            android:layout_width="60.0dip"
+            android:layout_height="29.0dip"
+            android:layout_gravity="center"
+            android:layout_marginRight="5.0dip"
+            android:background="@android:color/transparent"
+            android:src="@drawable/edit_night_selector" />
+
+        <ImageButton
+            android:id="@+id/back_button"
+            android:layout_width="60.0dip"
+            android:layout_height="29.0dip"
+            android:layout_gravity="center"
+            android:layout_marginRight="5.0dip"
+            android:background="@android:color/transparent"
+            android:src="@drawable/back_night_selector" />
+    </LinearLayout>
+
+</merge>

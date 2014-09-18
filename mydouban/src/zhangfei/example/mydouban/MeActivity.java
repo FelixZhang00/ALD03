@@ -190,7 +190,7 @@ public class MeActivity extends BaseCheckNetActivity implements
 				startActivity(myreadIntent);
 				break;
 			case 4:
-				Intent mynoteIntent = new Intent(this, MyNoteActivity.class);
+				Intent mynoteIntent = new Intent(this, MyNoteActivity2.class);
 				startActivity(mynoteIntent);
 				break;
 			case 5:
