@@ -90,6 +90,7 @@ public abstract class BaseMyActivity extends Activity {
 	private void ctrlTitleBar() {
 		showUser();
 		wIbtn_back = (ImageButton) findViewById(R.id.back_button);
+
 		wIbtn_back.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -118,7 +119,10 @@ public abstract class BaseMyActivity extends Activity {
 		AnimationSet animset = new AnimationSet(false);
 		animset.addAnimation(aa);
 		animset.addAnimation(sa);
-		mRl_loading_fromP.setAnimation(animset);
+
+		if (mRl_loading_fromP != null) {
+			mRl_loading_fromP.setAnimation(animset);
+		}
 	}
 
 	public void hideLoading() {
@@ -132,7 +136,9 @@ public abstract class BaseMyActivity extends Activity {
 		AnimationSet animset = new AnimationSet(false);
 		animset.addAnimation(aa);
 		animset.addAnimation(sa);
-		mRl_loading_fromP.setAnimation(animset);
+		if (mRl_loading_fromP != null) {
+			mRl_loading_fromP.setAnimation(animset);
+		}
 	}
 
 	@Override
@@ -177,9 +183,13 @@ public abstract class BaseMyActivity extends Activity {
 				mTv_user_fromP.setText(Html.fromHtml(text));
 				// change the loading status
 				hideLoading();
-				 mRl_loading_fromP.setVisibility(View.VISIBLE);
-				 mPb_loadingFP.setVisibility(View.GONE);
-				 mTv_loadingFP.setText("加载失败，请返回重试");
+				if (mRl_loading_fromP != null) {
+					mRl_loading_fromP.setVisibility(View.VISIBLE);
+					if (mPb_loadingFP != null && mTv_loadingFP != null) {
+						mPb_loadingFP.setVisibility(View.GONE);
+						mTv_loadingFP.setText("加载失败，请返回重试");
+					}
+				}
 			}
 
 		}

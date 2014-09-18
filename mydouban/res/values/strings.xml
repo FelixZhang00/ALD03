@@ -16,5 +16,6 @@
     
     <string name="menu_item_edit">修改日记</string>
     <string name="menu_item_delete">删除日记</string>
+    <string name="note_edit">编辑日记</string>
 
 </resources>

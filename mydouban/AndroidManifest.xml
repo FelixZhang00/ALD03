@@ -71,9 +71,14 @@
             android:label="@string/mynote"
             android:theme="@android:style/Theme.NoTitleBar" >
         </activity>
-          <activity
+        <activity
             android:name="zhangfei.example.mydouban.MyNoteActivity2"
             android:label="@string/mynote"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+        <activity
+            android:name="zhangfei.example.mydouban.NewNoteActivity"
+            android:label="@string/note_edit"
             android:theme="@android:style/Theme.NoTitleBar" >
         </activity>
 

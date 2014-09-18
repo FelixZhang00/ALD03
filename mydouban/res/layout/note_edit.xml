@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <include layout="@layout/titlebar" />
+
+    <ScrollView
+        android:id="@+id/settings"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@color/backgroundcolor"
+        android:scrollbars="none" >
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="#FFF5F5F5"
+            android:paddingBottom="10dip"
+            android:paddingLeft="10dip"
+            android:paddingRight="10dip"
+            android:paddingTop="10dip"
+            android:scrollbars="vertical" >
+
+            <RelativeLayout
+                android:id="@+id/section1"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:background="@drawable/content_bg" >
+
+                <TextView
+                    android:id="@+id/txtTitle"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_grey"
+                    android:text="编写新日志" />
+
+                <RelativeLayout
+                    android:id="@+id/wrapper"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/l_section1"
+                    android:paddingTop="30dip" >
+
+                    <EditText
+                        android:id="@+id/EditTextTitle"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@android:drawable/editbox_background"
+                        android:hint="日志标题"
+                        android:minHeight="40dip"
+                        android:textSize="24sp"
+                        android:text="" >
+                    </EditText>
+
+                    <EditText
+                        android:id="@+id/EditTextContent"
+                        android:layout_width="fill_parent"
+                        android:layout_height="250dip"
+                        android:layout_below="@id/EditTextTitle"
+                        android:background="@android:drawable/editbox_background"
+                        android:gravity="top"
+                        android:hint="日志内容"
+                        android:textSize="22sp"
+                        android:text="" >
+                    </EditText>
+
+                    <LinearLayout
+                        android:id="@+id/ll_select"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/EditTextContent"
+                        android:gravity="center"
+                        android:paddingTop="10dip" >
+
+                        <RadioGroup
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal" >
+
+                            <RadioButton
+                                android:id="@+id/rb_private"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="私有"
+                                android:textColor="@android:color/black" />
+
+                            <RadioButton
+                                android:id="@+id/rb_friend"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="好友"
+                                android:textColor="@android:color/black" />
+
+                            <RadioButton
+                                android:id="@+id/rb_public"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="公开"
+                                android:textColor="@android:color/black" />
+                        </RadioGroup>
+
+                        <CheckBox
+                            android:id="@+id/cb_can_reply"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="可以评论"
+                            android:textColor="@android:color/black" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/ll_select"
+                        android:gravity="center"
+                        android:paddingTop="10dip" >
+
+                        <Button
+                            android:id="@+id/btnSave"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/wp_button_small"
+                            android:text="提交"
+                            android:width="100dp" >
+                        </Button>
+
+                        <Button
+                            android:id="@+id/btnCancel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/wp_button_small"
+                            android:text="取消"
+                            android:width="100dp" >
+                        </Button>
+                    </LinearLayout>
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/loading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@+id/txtTitle"
+                    android:layout_below="@+id/txtTitle"
+                    android:visibility="invisible" >
+
+                    <LinearLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#AA111111"
+                        android:gravity="center"
+                        android:padding="8dip" >
+
+                        <ProgressBar
+                            android:id="@+id/progress"
+                            android:layout_width="24dip"
+                            android:layout_height="24dip"
+                            android:layout_marginBottom="6dip"
+                            android:layout_marginTop="6dip"
+                            android:indeterminate="true" />
+
+                        <TextView
+                            android:id="@+id/txt_loading"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentTop="true"
+                            android:layout_marginLeft="8dip"
+                            android:layout_toRightOf="@id/progress"
+                            android:shadowColor="#000000"
+                            android:shadowDx="0"
+                            android:shadowDy=".5"
+                            android:shadowRadius="1"
+                            android:text="正在发表日志"
+                            android:textColor="#FFFFFF" />
+                    </LinearLayout>
+                </RelativeLayout>
+            </RelativeLayout>
+        </RelativeLayout>
+    </ScrollView>
+
+</LinearLayout>

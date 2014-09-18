@@ -16,6 +16,7 @@ import com.google.gdata.util.ServiceException;
 
 import zhangfei.example.mydouban.domain.Note;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
@@ -214,10 +215,14 @@ public class MyNoteActivity2 extends BaseMyActivity implements OnClickListener {
 			break;
 
 		case R.id.btn_titlebar_add:
-			if (!mFlag_isloading) {
+			
 				Log.i(TAG, "btn_titlebar_edit");
+				Intent addIntent = new Intent(MyNoteActivity2.this,
+						NewNoteActivity.class);
+				// startActivityForResult(addIntent, 0);
+				startActivity(addIntent);
+				finish();
 
-			}
 			break;
 
 		default:
@@ -227,8 +232,13 @@ public class MyNoteActivity2 extends BaseMyActivity implements OnClickListener {
 	}
 
 	private void goNextPage() {
+		System.out.println("==========");
 		System.out.println("mStartIndex begin next ->" + mStartIndex);
+		
+		System.out.println("mFlag_End_Page->" + mFlag_End_Page);
 
+		System.out.println("mNoteMax->" + mNoteMax);
+		
 		if (!mFlag_isloading) {
 			// 加载完一页后才允许点按
 
@@ -477,5 +487,22 @@ public class MyNoteActivity2 extends BaseMyActivity implements OnClickListener {
 		}
 
 	}
+
+	// @Override
+	// protected void onActivityResult(int requestCode, int resultCode, Intent
+	// data) {
+	// super.onActivityResult(requestCode, resultCode, data);
+
+	// if (resultCode == RESULT_OK) {
+	// mStartIndex = 1;
+	// fillData();
+	// System.out.println("after onActivityResult:=====");
+	// System.out.println("mFlag_End_Page->" + mFlag_End_Page);
+	//
+	// System.out.println("mNoteMax->"+mNoteMax);
+	// System.out.println("==========");
+	// }
+	//
+	// }
 
 }
