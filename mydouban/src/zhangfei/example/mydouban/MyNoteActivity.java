@@ -324,9 +324,10 @@ public class MyNoteActivity extends BaseMyActivity implements OnClickListener {
 					}
 
 					for (Attribute attr : ne.getAttributes()) {
-						if (attr.getName().equals("can_reply")) {
+
+						if ("can_reply".equals(attr.getName())) {
 							note.setCan_reply(attr.getContent());
-						} else if (attr.getName().equals("")) {
+						} else if ("privacy".equals(attr.getName())) {
 							note.setPrivacy(attr.getContent());
 						}
 

@@ -126,7 +126,7 @@ public class MyNoteActivity2 extends BaseMyActivity implements OnClickListener {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				Note note = (Note) wLv.getItemAtPosition(position);
-				System.out.println("note entry"+note.getEntry().toString());
+				System.out.println("note entry" + note.getEntry().toString());
 				enterNoteEdit(note);
 			}
 		});
@@ -361,9 +361,9 @@ public class MyNoteActivity2 extends BaseMyActivity implements OnClickListener {
 			}
 
 			for (Attribute attr : ne.getAttributes()) {
-				if (attr.getName().equals("can_reply")) {
+				if ("can_reply".equals(attr.getName())) {
 					note.setCan_reply(attr.getContent());
-				} else if (attr.getName().equals("privacy")) {
+				} else if ("privacy".equals(attr.getName())) {
 					note.setPrivacy(attr.getContent());
 				}
 

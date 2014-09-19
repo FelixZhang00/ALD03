@@ -134,23 +134,23 @@ public class NewNoteActivity extends BaseMyActivity implements OnClickListener {
 
 		wEt_content.setText(content);
 
-		if (auth != null && !auth.equals("")) {
+		if (auth != null && !"".equals(auth)) {
 			initRadioButton(auth);
 		}
 
-		if (can_reply.equals("yes")) {
+		if ("yes".equals(can_reply)) {
 			wCb.setChecked(true);
-		} else if (can_reply.equals("no")) {
+		} else if ("no".equals(can_reply)) {
 			wCb.setChecked(false);
 		}
 	}
 
 	private void initRadioButton(String auth) {
-		if (auth.equals("public")) {
+		if ("public".equals(auth)) {
 			wRb_public.setChecked(true);
-		} else if (auth.equals("private")) {
+		} else if ("private".equals(auth)) {
 			wRb_private.setChecked(true);
-		} else if (auth.equals("friend")) {
+		} else if ("friend".equals(auth)) {
 			wRb_friend.setChecked(true);
 		}
 	}
@@ -471,7 +471,7 @@ public class NewNoteActivity extends BaseMyActivity implements OnClickListener {
 									int which) {
 								showToast("需要保存复杂对象到shared_prefs,本功能尚未实现");
 								backMyNote();
-								
+
 							}
 						})
 				.setNegativeButton("取消", new DialogInterface.OnClickListener() {

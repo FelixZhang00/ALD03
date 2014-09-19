@@ -317,7 +317,7 @@ public class LoginActivity2 extends BaseCheckNetActivity implements
 		checkNet();
 		if (NET_CONNED) {
 
-			if (mEtName.getText().toString().equals("")) {
+			if ("".equals(mEtName.getText().toString())) {
 				Toast.makeText(getApplicationContext(), "邮箱不能为空", 0).show();
 				return;
 			} else {
