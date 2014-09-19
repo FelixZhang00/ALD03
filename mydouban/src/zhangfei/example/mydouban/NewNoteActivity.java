@@ -2,6 +2,8 @@ package zhangfei.example.mydouban;
 
 import java.io.IOException;
 
+import zhangfei.example.mydouban.domain.Note;
+
 import com.google.gdata.data.PlainTextConstruct;
 import com.google.gdata.util.ServiceException;
 
@@ -39,15 +41,21 @@ public class NewNoteActivity extends BaseMyActivity implements OnClickListener {
 	private ProgressDialog wPd;
 	private ImageButton wIbtn_back;
 
-	private SharedPreferences mSp;
+	private SharedPreferences mSp1;
+	private SharedPreferences mSp2;
 	private String mTitle;
 	private String mContent;
+	private Note mOldNote; // 修改日记时传进来的note对象
+	private Note mCurrNote; // 当前的note对象
+	private boolean mFlag_model; // true: 修改 , false: 新建
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		mSp = getSharedPreferences("notetemp", Context.MODE_PRIVATE);
+		mSp1 = getSharedPreferences("notetemp", Context.MODE_PRIVATE);
+		mSp2 = getSharedPreferences("note_remote_temp", Context.MODE_PRIVATE);
 		setContentView(R.layout.note_edit);
 		super.onCreate(savedInstanceState);
+		mFlag_model = getIntent().getBooleanExtra("ismodify", false);
 		setupView();
 		setupListener();
 		fillData();
@@ -74,24 +82,59 @@ public class NewNoteActivity extends BaseMyActivity implements OnClickListener {
 
 	@Override
 	public void fillData() {
-		wTv_title_bar.setText("编辑日记");
-		initNoteUI();
+		if (mFlag_model) {
+			initRemoteNoteUI();
+		} else {
+			initLocalNoteUI();
+		}
+
+	}
+
+	/**
+	 * user修改日记 从服务器获取日记信息，填充到手机UI上
+	 */
+	private void initRemoteNoteUI() {
+		wTv_title_bar.setText("修改日记");
+		MyApp app = (MyApp) getApplication();
+		mOldNote = app.Anote;
+		System.out.println("mOldNote->" + mOldNote.toString());
+		if (mOldNote != null) {
+			String title = mOldNote.getTitle();
+			String content = mOldNote.getContent();
+			String privacy = mOldNote.getPrivacy();
+			String can_reply = mOldNote.getCan_reply();
+			initNoteUI(title, privacy, content, can_reply);
+		}
 	}
 
 	/**
 	 * 检查shared_prefs中是否有保存的note_temp,有则设置到界面上
 	 */
-	private void initNoteUI() {
+	private void initLocalNoteUI() {
+		wTv_title_bar.setText("编辑日记");
+		String title = mSp1.getString("title", "");
+		String auth = mSp1.getString("auth", "");
+		String content = mSp1.getString("content", "");
+		String can_reply = mSp1.getString("can_reply", "");
+		initNoteUI(title, auth, content, can_reply);
 
-		String title = mSp.getString("title", "");
-		String auth = mSp.getString("auth", "");
-		String content = mSp.getString("content", "");
-		String can_reply = mSp.getString("can_reply", "");
+	}
+
+	/**
+	 * 将获取的信息填充到UI上
+	 * 
+	 * @param title
+	 * @param auth
+	 * @param content
+	 * @param can_reply
+	 */
+	private void initNoteUI(String title, String auth, String content,
+			String can_reply) {
 		wEt_title.setText(title);
 
 		wEt_content.setText(content);
 
-		if (!auth.equals("")) {
+		if (auth != null && !auth.equals("")) {
 			initRadioButton(auth);
 		}
 
@@ -100,7 +143,6 @@ public class NewNoteActivity extends BaseMyActivity implements OnClickListener {
 		} else if (can_reply.equals("no")) {
 			wCb.setChecked(false);
 		}
-
 	}
 
 	private void initRadioButton(String auth) {
@@ -121,12 +163,7 @@ public class NewNoteActivity extends BaseMyActivity implements OnClickListener {
 
 			@Override
 			public void onClick(View v) {
-				if (checkSave()) {
-					showbackNotice();
-				} else {
-					backMyNote();
-					finish();
-				}
+				backPress();
 			}
 		});
 	}
@@ -135,7 +172,7 @@ public class NewNoteActivity extends BaseMyActivity implements OnClickListener {
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.btnSave:
-			uploadData();
+			checkUpLoadModel();
 			break;
 
 		case R.id.btnCancel:
@@ -150,56 +187,115 @@ public class NewNoteActivity extends BaseMyActivity implements OnClickListener {
 		}
 	}
 
-	private void uploadData() {
-		final String title = wEt_title.getText().toString();
-		final String content = wEt_content.getText().toString();
-		String auth = null;
-		String can_reply = null;
-		if (checkNote(title, content)) {
-			auth = checkAuth();
-			can_reply = checkCan_reply();
-
-			new AsyncTask<String, Void, Boolean>() {
-
-				@Override
-				protected void onPreExecute() {
-					wPd = new ProgressDialog(NewNoteActivity.this);
-					wPd.setMessage("正在提交..");
-					wPd.show();
-					super.onPreExecute();
+	/**
+	 * 选择上传数据的方式：提交新日记，更新修改的日记，对未修改的日记不提交。
+	 */
+	private void checkUpLoadModel() {
+		setCurrentNote();
+		if (mFlag_model) {
+			// 修改
+			if (mCurrNote.toString().equals(mOldNote.toString())) {
+				showToast("日记未修改");
+			} else {
+				// 提交修改后的日记，不用设置当前的时间，在豆瓣网上只给新建的日记设置发布时间
+				if (checkNote(mCurrNote.getTitle(), mCurrNote.getContent())) {
+					upLoadData(mCurrNote);
 				}
+			}
+		} else {
+			// 新建
+			if (checkNote(mCurrNote.getTitle(), mCurrNote.getContent())) {
+				upLoadData(mCurrNote);
+			}
 
-				@Override
-				protected Boolean doInBackground(String... params) {
-					try {
-						myService.createNote(new PlainTextConstruct(title),
-								new PlainTextConstruct(content), params[0],
-								params[1]);
-					} catch (Exception e) {
-						e.printStackTrace();
-						return false;
+		}
+
+	}
+
+	/**
+	 * 设置当前UI上的Note对象
+	 */
+	private void setCurrentNote() {
+		String title = wEt_title.getText().toString();
+		String content = wEt_content.getText().toString();
+		String auth = checkAuth();
+		String can_reply = checkCan_reply();
+		if (mFlag_model) {
+			mCurrNote = new Note(content, title, auth, can_reply,
+					mOldNote.getPubdate());
+		} else {
+			mCurrNote = new Note(content, title, auth, can_reply);
+		}
+	}
+
+	private void upLoadData(Note note) {
+		new AsyncTask<Note, Void, Boolean>() {
+
+			@Override
+			protected void onPreExecute() {
+				wPd = new ProgressDialog(NewNoteActivity.this);
+				if (mFlag_model) {
+					wPd.setMessage("正在更新..");
+				} else {
+					wPd.setMessage("正在发表..");
+				}
+				wPd.show();
+				super.onPreExecute();
+			}
+
+			@Override
+			protected Boolean doInBackground(Note... params) {
+				Note note = params[0];
+				try {
+					if (mFlag_model) {
+						myService.updateNote(mOldNote.getEntry(),
+								new PlainTextConstruct(note.getTitle()),
+								new PlainTextConstruct(note.getContent()),
+								note.getPrivacy(), note.getCan_reply());
+					} else {
+						// 提交新建的日记
+						myService.createNote(
+								new PlainTextConstruct(note.getTitle()),
+								new PlainTextConstruct(note.getContent()),
+								note.getPrivacy(), note.getCan_reply());
 					}
-					return true;
 
+				} catch (Exception e) {
+					e.printStackTrace();
+					return false;
 				}
+				return true;
 
-				@Override
-				protected void onPostExecute(Boolean result) {
-					wPd.dismiss();
+			}
+
+			@Override
+			protected void onPostExecute(Boolean result) {
+				wPd.dismiss();
+				if (mFlag_model) {
 					if (result) {
-						showToast("提交成功");
+						showToast("更新成功");
+						// setResult(RESULT_OK);
+						backMyNote();
+
+					} else {
+						showToast("更新日记失败，请重试");
+					}
+				} else {
+					if (result) {
+						showToast("发表成功");
 						clearNoteTemp();
 						// setResult(RESULT_OK);
 						backMyNote();
-						finish();
+
 					} else {
 						showToast("发表日记失败，请重试");
 					}
-					super.onPostExecute(result);
 				}
 
-			}.execute(auth, can_reply);
-		}
+				super.onPostExecute(result);
+			}
+
+		}.execute(note);
 
 	}
 
@@ -229,7 +325,7 @@ public class NewNoteActivity extends BaseMyActivity implements OnClickListener {
 	 * 清除shared_prefs 中的 note_temp
 	 */
 	protected void clearNoteTemp() {
-		Editor editor = mSp.edit();
+		Editor editor = mSp1.edit();
 		editor.clear();
 		editor.commit();
 	}
@@ -255,16 +351,39 @@ public class NewNoteActivity extends BaseMyActivity implements OnClickListener {
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		// 按下键盘上返回按钮
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			return backPress();
+		} else {
+			return super.onKeyDown(keyCode, event);
+		}
+	}
+
+	private boolean backPress() {
+		if (mFlag_model) {
+			// 处理 用户修改已发布日记 后的回退
+			setCurrentNote();
+			if (mCurrNote.toString().equals(mOldNote.toString())) {
+				showToast("日记未修改");
+				backMyNote();
+				return false;
+			} else {
+				if (checkSave()) {
+					showbackNotice2();
+					return true;
+				} else {
+					backMyNote();
+					return false;
+				}
+
+			}
+		} else {
+			// 新建
 			if (checkSave()) {
 				showbackNotice();
 				return true;
 			} else {
 				backMyNote();
-				finish();
 				return false;
 			}
-		} else {
-			return super.onKeyDown(keyCode, event);
 		}
 	}
 
@@ -287,7 +406,7 @@ public class NewNoteActivity extends BaseMyActivity implements OnClickListener {
 	}
 
 	/**
-	 * 当用户点击 取消 或者按返回键，弹出对话框是否保存
+	 * 当用户在新建日记时 当用户点击 取消 或者按返回键，弹出对话框是否保存
 	 * 
 	 */
 	private void showbackNotice() {
@@ -303,7 +422,7 @@ public class NewNoteActivity extends BaseMyActivity implements OnClickListener {
 									int which) {
 								saveTempNote();
 								backMyNote();
-								finish();
+
 							}
 						})
 				.setNeutralButton("清空草稿",
@@ -314,7 +433,45 @@ public class NewNoteActivity extends BaseMyActivity implements OnClickListener {
 									int which) {
 								clearNoteTemp();
 								backMyNote();
-								finish();
+
+							}
+						})
+				.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+
+					}
+				}).show();
+
+	}
+
+	/**
+	 * 当用户在修改已发布日记时 当用户点击 取消 或者按返回键，弹出对话框是否保存
+	 * 
+	 */
+	private void showbackNotice2() {
+
+		new AlertDialog.Builder(this)
+				.setTitle("提醒")
+				.setMessage("已经修改了日记，需要更新吗？")
+				.setPositiveButton("更新", new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						checkUpLoadModel();
+
+					}
+				})
+				.setNeutralButton("保存到草稿",
+						new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								showToast("需要保存复杂对象到shared_prefs,本功能尚未实现");
+								backMyNote();
+								
 							}
 						})
 				.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -331,7 +488,7 @@ public class NewNoteActivity extends BaseMyActivity implements OnClickListener {
 	 * 把当前的note信息 存放在shareperence里
 	 */
 	private void saveTempNote() {
-		Editor editor = mSp.edit();
+		Editor editor = mSp1.edit();
 		editor.putString("title", mTitle);
 		editor.putString("content", mContent);
 		editor.putString("auth", checkAuth());
@@ -347,6 +504,7 @@ public class NewNoteActivity extends BaseMyActivity implements OnClickListener {
 		Intent backMyNoteIntent = new Intent(NewNoteActivity.this,
 				MyNoteActivity2.class);
 		startActivity(backMyNoteIntent);
+		finish();
 	}
 
 }

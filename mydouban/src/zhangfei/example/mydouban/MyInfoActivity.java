@@ -37,6 +37,7 @@ public class MyInfoActivity extends BaseMyActivity {
 
 		setContentView(R.layout.myinfo_layout);
 		super.onCreate(savedInstanceState);
+		
 	}
 
 	@Override

@@ -82,6 +82,8 @@ public class MyNoteActivity2 extends BaseMyActivity implements OnClickListener {
 	protected boolean mFlag_delete_note;
 	private boolean mFlag_NotesTemp = false; // mNotesTemp 是否被设置的标志
 
+	private final static int EDIT_NOTE = 1;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setContentView(R.layout.mynote_layout);
@@ -90,6 +92,7 @@ public class MyNoteActivity2 extends BaseMyActivity implements OnClickListener {
 		mCount = 7;
 		mStartIndex = 1;
 		mMapPage = new HashMap<Integer, List<Note>>();
+		fillData();
 	}
 
 	@Override
@@ -111,6 +114,52 @@ public class MyNoteActivity2 extends BaseMyActivity implements OnClickListener {
 	}
 
 	@Override
+	public void setupListener() {
+		wBtn_next.setOnClickListener(this);
+		wBtn_pre.setOnClickListener(this);
+		wIbtn_add.setOnClickListener(this);
+
+		// 点击条目进入编辑窗口
+		wLv.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				Note note = (Note) wLv.getItemAtPosition(position);
+				System.out.println("note entry"+note.getEntry().toString());
+				enterNoteEdit(note);
+			}
+		});
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.btn_mynote_next:
+			goNextPage();
+			break;
+		case R.id.btn_mynote_pre:
+			goPrePage();
+			break;
+
+		case R.id.btn_titlebar_add:
+
+			Log.i(TAG, "btn_titlebar_edit");
+			Intent addIntent = new Intent(MyNoteActivity2.this,
+					NewNoteActivity.class);
+			// startActivityForResult(addIntent, 0);
+			startActivity(addIntent);
+			finish();
+
+			break;
+
+		default:
+			break;
+		}
+
+	}
+
+	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
@@ -127,7 +176,7 @@ public class MyNoteActivity2 extends BaseMyActivity implements OnClickListener {
 		NoteEntry entry = note.getEntry();
 		switch (item.getItemId()) {
 		case R.id.edit:
-
+			enterNoteEdit(note);
 			return true;
 		case R.id.delete:
 			if (!mFlag_isloading) {
@@ -137,6 +186,16 @@ public class MyNoteActivity2 extends BaseMyActivity implements OnClickListener {
 		default:
 			return super.onContextItemSelected(item);
 		}
+	}
+
+	private void enterNoteEdit(Note note) {
+
+		Intent modifyintent = new Intent(MyNoteActivity2.this,
+				NewNoteActivity.class);
+		MyApp app = (MyApp) getApplication();
+		app.Anote = note;
+		modifyintent.putExtra("ismodify", true);
+		startActivityForResult(modifyintent, EDIT_NOTE);
 	}
 
 	private void deleteNote(NoteEntry entry) {
@@ -187,58 +246,14 @@ public class MyNoteActivity2 extends BaseMyActivity implements OnClickListener {
 		}.execute(entry);
 	}
 
-	@Override
-	public void setupListener() {
-		wBtn_next.setOnClickListener(this);
-		wBtn_pre.setOnClickListener(this);
-		wIbtn_add.setOnClickListener(this);
-
-		// 点击条目进入编辑窗口
-		wLv.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-
-			}
-		});
-	}
-
-	@Override
-	public void onClick(View v) {
-		switch (v.getId()) {
-		case R.id.btn_mynote_next:
-			goNextPage();
-			break;
-		case R.id.btn_mynote_pre:
-			goPrePage();
-			break;
-
-		case R.id.btn_titlebar_add:
-			
-				Log.i(TAG, "btn_titlebar_edit");
-				Intent addIntent = new Intent(MyNoteActivity2.this,
-						NewNoteActivity.class);
-				// startActivityForResult(addIntent, 0);
-				startActivity(addIntent);
-				finish();
-
-			break;
-
-		default:
-			break;
-		}
-
-	}
-
 	private void goNextPage() {
 		System.out.println("==========");
 		System.out.println("mStartIndex begin next ->" + mStartIndex);
-		
+
 		System.out.println("mFlag_End_Page->" + mFlag_End_Page);
 
 		System.out.println("mNoteMax->" + mNoteMax);
-		
+
 		if (!mFlag_isloading) {
 			// 加载完一页后才允许点按
 
@@ -348,7 +363,7 @@ public class MyNoteActivity2 extends BaseMyActivity implements OnClickListener {
 			for (Attribute attr : ne.getAttributes()) {
 				if (attr.getName().equals("can_reply")) {
 					note.setCan_reply(attr.getContent());
-				} else if (attr.getName().equals("")) {
+				} else if (attr.getName().equals("privacy")) {
 					note.setPrivacy(attr.getContent());
 				}
 

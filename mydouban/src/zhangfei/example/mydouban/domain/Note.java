@@ -10,6 +10,7 @@ public class Note {
 	private String can_reply;
 	private String pubdate;
 	private NoteEntry entry;
+
 	public Note() {
 		super();
 	}
@@ -24,8 +25,15 @@ public class Note {
 		this.pubdate = pubdate;
 	}
 
-	
-	
+	public Note(String content, String title, String privacy, String can_reply) {
+		super();
+		this.content = content;
+		this.title = title;
+		this.privacy = privacy;
+		this.can_reply = can_reply;
+
+	}
+
 	public NoteEntry getEntry() {
 		return entry;
 	}
@@ -80,7 +88,5 @@ public class Note {
 				+ privacy + ", can_reply=" + can_reply + ", pubdate=" + pubdate
 				+ "]";
 	}
-	
-	
 
 }
