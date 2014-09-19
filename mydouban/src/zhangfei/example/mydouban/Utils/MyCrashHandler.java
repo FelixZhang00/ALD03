@@ -111,17 +111,20 @@ public class MyCrashHandler implements UncaughtExceptionHandler {
 
 		// 获取当前系统时间作为标题的一部分
 		SimpleDateFormat dateFormat = new SimpleDateFormat(
-				"yyyy-MM-dd HH-mm-ss");
-		final String title = "mydouban 错误日志 "
+				"yyyy-MM-dd HH:mm:ss");
+		final String title = "mydouban错误日志 "
 				+ dateFormat.format(new Date(System.currentTimeMillis()));
 		final String content = sb.toString();
-		//当网络可用时才发送
+
+		// // 当网络可用时才发送
 		if (isNetworkAvail()) {
 			// 发表日志是耗时操作，要放在asynctask中执行
-			new AsyncTask<String, Void, Boolean>() {
+			new Thread() {
 
 				@Override
-				protected Boolean doInBackground(String... params) {
+				public void run() {
+					super.run();
+
 					DoubanUserInfoProvider infoProvider = new DoubanUserInfoProvider(
 							context);
 					DoubanService myService = infoProvider
@@ -130,31 +133,28 @@ public class MyCrashHandler implements UncaughtExceptionHandler {
 						myService.createNote(new PlainTextConstruct(title),
 								new PlainTextConstruct(content), "private",
 								"no");
+
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
-						return false;
-					}
-					return true;
-				}
 
-				@Override
-				protected void onPostExecute(Boolean result) {
-					super.onPostExecute(result);
-					if (result) {
-						Toast.makeText(context, "上传错误日志到服务器成功", 0).show();
-					} else {
-						Toast.makeText(context, "上传错误日志到服务器失败", 0).show();
+					}
+
+					try {
+						sleep(500);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
 					// 完成自杀的操作
 					android.os.Process.killProcess(android.os.Process.myPid());
-
 				}
 
-			}.execute(title, content);
-		}else {
-			Toast.makeText(context, "无法上传错误日志到服务器", 0).show();
+			}.start();
 		}
+		// 下面的方法失败
+		// new AsyncTask<Void, Void, Boolean>() {
+
 		Log.e("error", sb.toString());
 
 	}

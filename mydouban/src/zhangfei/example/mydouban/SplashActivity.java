@@ -30,12 +30,12 @@ public class SplashActivity extends Activity {
 	private LinearLayout mLL;
 	private final String TAG = "SplashActivity";
 
-	String s;
+	//	String s;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		s.equals("");
+//		s.equals("");
 		setContentView(R.layout.splash);
 		tv_version = (TextView) this
 				.findViewById(R.id.tv_splash_version_number);
