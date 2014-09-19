@@ -16,11 +16,16 @@ import com.google.gdata.data.PlainTextConstruct;
 import com.google.gdata.util.ServiceException;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * @author tmac 自定义的异常处理类 将获取的错误信息以私有日记的形式发表到豆瓣服务器
@@ -48,14 +53,16 @@ public class MyCrashHandler implements UncaughtExceptionHandler {
 	}
 
 	// 程序异常时调用的方法
-	@Override
+
 	public void uncaughtException(Thread thread, Throwable ex) {
 		System.out.println("====程序出错====");
 		StringBuilder sb = new StringBuilder();
 		PackageManager pm = context.getPackageManager();
 		// 获取重要的手机及程序信息
+
+		PackageInfo info;
 		try {
-			PackageInfo info = pm.getPackageInfo(context.getPackageName(), 0);
+			info = pm.getPackageInfo(context.getPackageName(), 0);
 			// 1.获取当前应用程序的版本号.
 			sb.append("程序的版本号->" + info.versionName);
 			sb.append("\n");
@@ -68,7 +75,7 @@ public class MyCrashHandler implements UncaughtExceptionHandler {
 				fields[i].setAccessible(true);
 				String name = fields[i].getName();
 				sb.append("name=" + name);
-				sb.append("\n");
+				sb.append("\t");
 				String vaule = fields[i].get(null).toString();
 				sb.append("value=" + vaule);
 				sb.append("\n");
@@ -76,51 +83,93 @@ public class MyCrashHandler implements UncaughtExceptionHandler {
 			sb.append("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 			sb.append("\n");
 
-			// 3.获取程序错误的堆栈信息 .
-			sb.append("~~~~~程序错误的堆栈信息~~~~~~");
-			sb.append("\n");
-			StringWriter writer = new StringWriter();
-			PrintWriter printWriter = new PrintWriter(writer);
-			// 指定错误信息的输出对象
-			ex.printStackTrace(printWriter);
-			String result = writer.toString();
-			sb.append(result);
-
-			sb.append("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-			sb.append("\n");
-			// 4.把错误信息 提交到服务器
-			System.out.println(sb.toString());
-			DoubanUserInfoProvider infoProvider = new DoubanUserInfoProvider(
-					context);
-			DoubanService myService = infoProvider.getBackDoubanService();
-
-			// 获取当前系统时间作为标题的一部分
-			SimpleDateFormat dateFormat = new SimpleDateFormat(
-					"yyyy-MM-dd HH-mm-ss");
-			String title = "mydouban 错误日志 "
-					+ dateFormat.format(new Date(System.currentTimeMillis()));
-			myService.createNote(new PlainTextConstruct(title),
-					new PlainTextConstruct(sb.toString()), "private", "no");
-			Log.e("error", sb.toString());
-		} catch (NameNotFoundException e) {
-			e.printStackTrace();
+		} catch (NameNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 
-		// 让程序进程自杀
-		android.os.Process.killProcess(android.os.Process.myPid());
+		// 3.获取程序错误的堆栈信息 .
+		sb.append("~~~~~程序错误的堆栈信息~~~~~~");
+		sb.append("\n");
+		StringWriter writer = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(writer);
+		// 指定错误信息的输出对象
+		ex.printStackTrace(printWriter);
+		String result = writer.toString();
+		sb.append(result);
 
+		sb.append("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		sb.append("\n");
+		// 4.把错误信息 提交到服务器
+		System.out.println(sb.toString());
+
+		// 获取当前系统时间作为标题的一部分
+		SimpleDateFormat dateFormat = new SimpleDateFormat(
+				"yyyy-MM-dd HH-mm-ss");
+		final String title = "mydouban 错误日志 "
+				+ dateFormat.format(new Date(System.currentTimeMillis()));
+		final String content = sb.toString();
+		//当网络可用时才发送
+		if (isNetworkAvail()) {
+			// 发表日志是耗时操作，要放在asynctask中执行
+			new AsyncTask<String, Void, Boolean>() {
+
+				@Override
+				protected Boolean doInBackground(String... params) {
+					DoubanUserInfoProvider infoProvider = new DoubanUserInfoProvider(
+							context);
+					DoubanService myService = infoProvider
+							.getBackDoubanService();
+					try {
+						myService.createNote(new PlainTextConstruct(title),
+								new PlainTextConstruct(content), "private",
+								"no");
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						return false;
+					}
+					return true;
+				}
+
+				@Override
+				protected void onPostExecute(Boolean result) {
+					super.onPostExecute(result);
+					if (result) {
+						Toast.makeText(context, "上传错误日志到服务器成功", 0).show();
+					} else {
+						Toast.makeText(context, "上传错误日志到服务器失败", 0).show();
+					}
+					// 完成自杀的操作
+					android.os.Process.killProcess(android.os.Process.myPid());
+
+				}
+
+			}.execute(title, content);
+		}else {
+			Toast.makeText(context, "无法上传错误日志到服务器", 0).show();
+		}
+		Log.e("error", sb.toString());
+
+	}
+
+	/**
+	 * check out whether the network is available.
+	 * 
+	 * @return true if the network is available.
+	 */
+	public boolean isNetworkAvail() {
+		ConnectivityManager cman = (ConnectivityManager) context
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo info = cman.getActiveNetworkInfo();
+
+		return (info != null && info.isConnected());
 	}
 
 }

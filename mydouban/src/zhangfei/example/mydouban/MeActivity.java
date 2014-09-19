@@ -85,6 +85,7 @@ public class MeActivity extends BaseCheckNetActivity implements
 		mContext_fromP = this;
 		super.onCreate(savedInstanceState);
 
+		
 		setupView();
 		mLv.setAdapter(new ArrayAdapter<String>(this, R.layout.me_item,
 				R.id.tv_me_item, items));
