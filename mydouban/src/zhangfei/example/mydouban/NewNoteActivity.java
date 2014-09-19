@@ -74,8 +74,8 @@ public class NewNoteActivity extends BaseMyActivity implements OnClickListener {
 		wBtn_save = (Button) findViewById(R.id.btnSave);
 		wBtn_cancel = (Button) findViewById(R.id.btnCancel);
 
-		wCb.setChecked(true);
-		wRb_public.setChecked(true);
+		wCb.setChecked(false);
+		wRb_private.setChecked(true);
 		wIbtn_back = (ImageButton) findViewById(R.id.back_button);
 
 	}
@@ -95,6 +95,7 @@ public class NewNoteActivity extends BaseMyActivity implements OnClickListener {
 	 */
 	private void initRemoteNoteUI() {
 		wTv_title_bar.setText("修改日记");
+		wBtn_save.setText("更新");
 		MyApp app = (MyApp) getApplication();
 		mOldNote = app.Anote;
 		System.out.println("mOldNote->" + mOldNote.toString());
@@ -177,9 +178,7 @@ public class NewNoteActivity extends BaseMyActivity implements OnClickListener {
 
 		case R.id.btnCancel:
 			// 弹出对话框，提醒是否保存
-			if (checkSave()) {
-				showbackNotice();
-			}
+			backPress();
 			break;
 
 		default:
@@ -196,6 +195,7 @@ public class NewNoteActivity extends BaseMyActivity implements OnClickListener {
 			// 修改
 			if (mCurrNote.toString().equals(mOldNote.toString())) {
 				showToast("日记未修改");
+
 			} else {
 				// 提交修改后的日记，不用设置当前的时间，在豆瓣网上只给新建的日记设置发布时间
 				if (checkNote(mCurrNote.getTitle(), mCurrNote.getContent())) {
