@@ -3,7 +3,8 @@
 
     <color name="backgroundcolor">#fffbfbfb</color>
     <color name="text_grey">#666666</color>
+    <color name="text_grey2">#8e8e8e</color>
     <color name="bg_yellow">#f2f1ee</color>
     <color name="yellow_deep">#d5cabd</color>
-
+<color name="white">#ffffff</color>
 </resources>

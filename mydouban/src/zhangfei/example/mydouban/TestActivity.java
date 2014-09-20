@@ -13,7 +13,7 @@ public class TestActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		 
-		setContentView(R.layout.about);
+		setContentView(R.layout.bookdetail_layout2);
 	}
 
 	

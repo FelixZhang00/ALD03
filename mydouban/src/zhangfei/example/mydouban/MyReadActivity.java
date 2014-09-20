@@ -53,19 +53,8 @@ import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class MyReadActivity extends BaseMyBookActivity implements
-		OnItemClickListener {
-
-	private TextView wTv_title_bar;
-	private TextView wTv_link;
-	private LinearLayout wLL_notice;
-	private ListView wLv;
-
+public class MyReadActivity extends BaseMyBookActivity {
 	public static final String TAG = "MyReadActivity";
-
-	private MyBookAdapter mAdapter;
-
-	private boolean mFlag_isloading = false;
 
 	private KillReceiver mKillReceiver;
 	private IntentFilter filter;
@@ -73,6 +62,7 @@ public class MyReadActivity extends BaseMyBookActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setContentView(R.layout.myread_layout);
+		setupView();
 		super.onCreate(savedInstanceState);
 
 	}
@@ -97,7 +87,7 @@ public class MyReadActivity extends BaseMyBookActivity implements
 
 	@Override
 	public void setupListener() {
-		wLv.setOnItemClickListener(this);
+
 		wLv.setOnScrollListener(new OnScrollListener() {
 
 			@Override
@@ -145,13 +135,6 @@ public class MyReadActivity extends BaseMyBookActivity implements
 
 			}
 		});
-	}
-
-	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position,
-			long id) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override

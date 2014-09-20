@@ -15,6 +15,8 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import zhangfei.example.mydouban.R;
 import zhangfei.example.mydouban.domain.NewBook;
@@ -207,4 +209,104 @@ public class TestNet extends AndroidTestCase {
 		System.out.println(newBooks);
 
 	}
+
+	/**
+	 * 根据isbn获取以json封装的书信息
+	 * 
+	 * @throws Exception
+	 */
+	public void testGetJson() throws Exception {
+		// String urlstr = "https://api.douban.com/v2/book/1220562?alt=json";
+		String urlstr = "http://api.douban.com/book/subject/isbn/9787544271677?alt=json";
+		URL url = new URL(urlstr);
+		URLConnection conn = url.openConnection();
+		Source source = new Source(conn);
+		String jsonstr = source.toString();
+		// System.out.println(jsonstr);
+
+		JSONObject jsonObject = new JSONObject(jsonstr);
+
+		String titlestr = jsonObject.getString("title").toString();
+		JSONObject titleJson = new JSONObject(titlestr);
+		String title = titleJson.getString("$t").toString();
+		System.out.println(title);
+
+		String summarystr = jsonObject.getString("summary").toString();
+		if (summarystr != null) {
+			JSONObject summaryjson = new JSONObject(summarystr);
+			String summary = summaryjson.getString("$t").toString();
+			System.out.println(summary);
+		}
+
+		String attrstr = jsonObject.getString("db:attribute").toString();
+		JSONArray attrArrayJson = new JSONArray(attrstr);
+		for (int i = 0; i < attrArrayJson.length(); i++) {
+			JSONObject attrItemJson = new JSONObject(attrArrayJson.get(i)
+					.toString());
+			if ("price".equals(attrItemJson.getString("@name").toString())) {
+				String price = attrItemJson.getString("$t").toString();
+				System.out.println(price);
+			}
+		}
+
+		// String authsstr = jsonObject.getString("author");
+		// JSONArray authors = new JSONArray(authsstr);
+		// StringBuilder sb = new StringBuilder();
+		// for (int i = 0; i < authors.length(); i++) {
+		// String authorStr = authors.getString(i);
+		// JSONObject authjson = new JSONObject(authorStr);
+		// sb.append(authjson.getString("name"))
+		// }
+		//
+		// System.out.println(sb.toString());
+
+	}
+
+	public void testGetJsonFromId() throws Exception {
+		// String urlstr = "https://api.douban.com/v2/book/1220562?alt=json";
+		String urlstr = "http://api.douban.com/book/subject/25957554?alt=json";
+		URL url = new URL(urlstr);
+		URLConnection conn = url.openConnection();
+		Source source = new Source(conn);
+		String jsonstr = source.toString();
+		// System.out.println(jsonstr);
+
+		JSONObject jsonObject = new JSONObject(jsonstr);
+
+		String titlestr = jsonObject.getString("title").toString();
+		JSONObject titleJson = new JSONObject(titlestr);
+		String title = titleJson.getString("$t").toString();
+		System.out.println(title);
+
+		String summarystr = jsonObject.getString("summary").toString();
+		if (summarystr != null) {
+			JSONObject summaryjson = new JSONObject(summarystr);
+			String summary = summaryjson.getString("$t").toString();
+			System.out.println(summary);
+		}
+
+		String attrstr = jsonObject.getString("db:attribute").toString();
+		JSONArray attrArrayJson = new JSONArray(attrstr);
+		for (int i = 0; i < attrArrayJson.length(); i++) {
+			JSONObject attrItemJson = new JSONObject(attrArrayJson.get(i)
+					.toString());
+			if ("price".equals(attrItemJson.getString("@name").toString())) {
+				String price = attrItemJson.getString("$t").toString();
+				System.out.println(price);
+			}
+		}
+
+		// String authsstr = jsonObject.getString("author");
+		// JSONArray authors = new JSONArray(authsstr);
+		// StringBuilder sb = new StringBuilder();
+		// for (int i = 0; i < authors.length(); i++) {
+		// String authorStr = authors.getString(i);
+		// JSONObject authjson = new JSONObject(authorStr);
+		// sb.append(authjson.getString("name"))
+		// }
+		//
+		// System.out.println(sb.toString());
+
+	}
+
 }

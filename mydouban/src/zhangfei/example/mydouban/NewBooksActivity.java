@@ -22,6 +22,8 @@ import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -34,14 +36,7 @@ import android.widget.Toast;
 
 public class NewBooksActivity extends BaseMyBookActivity {
 
-	private TextView wTv_title_bar;
-	private TextView wTv_link;
-	private LinearLayout wLL_notice;
-	private ListView wLv;
-
-	private NewBooksAdapter mAdapter;
-
-	private boolean mFlag_isloading = false;
+	private NewBooksAdapter mNBAdapter;
 
 	private boolean mBackKeyPressedTimes = false; // false 不允许退出
 
@@ -129,8 +124,8 @@ public class NewBooksActivity extends BaseMyBookActivity {
 			mRl_loading_fromP.setVisibility(View.INVISIBLE);
 			// if (mAdapter == null) {
 
-			mAdapter = new NewBooksAdapter(result);
-			wLv.setAdapter(mAdapter);
+			mNBAdapter = new NewBooksAdapter(result);
+			wLv.setAdapter(mNBAdapter);
 			// } else {
 			// mAdapter.adddMore(result);
 			// mAdapter.notifyDataSetChanged();

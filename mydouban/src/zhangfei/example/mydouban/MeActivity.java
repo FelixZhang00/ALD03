@@ -190,9 +190,13 @@ public class MeActivity extends BaseCheckNetActivity implements
 				startActivity(myreadIntent);
 				break;
 			case 1:
-				Intent settingIntent = new Intent(this,
-						SettingActivity.class);
+				Intent settingIntent = new Intent(this, SettingActivity.class);
 				startActivity(settingIntent);
+				break;
+
+			case 2:
+				Intent testIntent = new Intent(this, TestActivity.class);
+				startActivity(testIntent);
 				break;
 			case 4:
 				Intent mynoteIntent = new Intent(this, MyNoteActivity2.class);

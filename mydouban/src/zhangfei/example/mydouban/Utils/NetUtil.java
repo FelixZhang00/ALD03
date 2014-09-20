@@ -7,6 +7,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -172,10 +174,6 @@ public class NetUtil {
 		editor.commit();
 		return true;
 	}
-	
-	
-	
-	
 
 	public static List<NewBook> getNewBooks(Context context) throws Exception {
 		String newbookurl = context.getResources().getString(
@@ -206,6 +204,31 @@ public class NetUtil {
 					newBook.setSummary(summary);
 
 					Element imgElement = childElements.get(1);
+					String idhref = imgElement.getAttributeValue("href");
+
+					// 这是要分析的正则表达式 <a
+					// href="http://book.douban.com/subject/25942487/">
+
+					String regex = "\\d+"; // 正则表达式
+					Pattern p = Pattern.compile(regex);
+
+					Matcher m = p.matcher(idhref);
+					String id=null;
+					while (m.find()) {
+						 id=m.group();
+					}
+					System.out.println("id---"+id);
+
+					String idurl="http://api.douban.com/book/subject/"+id;
+					newBook.setId(idurl);
+					// System.out.println("id--->"+id);
+
+					// int start= idhref.lastIndexOf("/");
+					// String id= idhref.substring(start+1, idhref.length());
+
+					// System.out.println("img-->"
+					// + imgElement.getContent().toString());
+
 					String imgurl = imgElement.getChildElements().get(0)
 							.getAttributeValue("src");
 					newBook.setImgurl(imgurl);

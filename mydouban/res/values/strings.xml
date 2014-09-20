@@ -18,5 +18,6 @@
     <string name="note_edit">编辑日记</string>
     <string name="new_books">新书</string>
     <string name="setting">设置</string>
+    <string name="book_detail">图书详情</string>
 
 </resources>

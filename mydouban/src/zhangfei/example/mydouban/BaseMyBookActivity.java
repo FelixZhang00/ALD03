@@ -36,6 +36,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -47,12 +49,19 @@ import android.widget.TextView;
 
 public class BaseMyBookActivity extends BaseMyActivity {
 
-	public Map<String, SoftReference<Bitmap>> mIconCache;
+	public ListView wLv;
+	public TextView wTv_title_bar;
+	public TextView wTv_link;
+	public LinearLayout wLL_notice;
+
 	private String TAG = "BaseMyBookActivity";
+	public Map<String, SoftReference<Bitmap>> mIconCache;
+	public MyBookAdapter mAdapter;
 	public UserEntry mUserEntry;
 	public int mStartIndex;
 	public int mCount;
 	public int mbookMax = 0;
+	public boolean mFlag_isloading = false;
 	/*
 	 * 豆瓣好像没有提供user的读书总数。不得不用其他方法来获得。
 	 */
@@ -70,8 +79,8 @@ public class BaseMyBookActivity extends BaseMyActivity {
 		 * little money to buy many phones.
 		 */
 		mCount = 10;
-
 		super.onCreate(savedInstanceState);
+		setBookListener();
 	}
 
 	@Override
@@ -79,9 +88,32 @@ public class BaseMyBookActivity extends BaseMyActivity {
 
 	}
 
+	private void setBookListener() {
+		wLv.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				// 激活到 图书详情界面
+				Intent detailIntent = new Intent(BaseMyBookActivity.this,
+						BookDetailActivity.class);
+				Book book = (Book) wLv.getItemAtPosition(position);
+				// String desc = book.getDescription();
+				// int end = desc.indexOf("/");
+				// detailIntent.putExtra("isbn", desc.substring(0, end));
+				
+				System.out.println("id->"+book.getId());
+				detailIntent.putExtra("id", book.getId());
+
+				startActivity(detailIntent);
+
+			}
+		});
+
+	}
+
 	@Override
 	public void setupListener() {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -129,8 +161,9 @@ public class BaseMyBookActivity extends BaseMyActivity {
 			// }
 			if (se != null) {
 				Book book = new Book();
+				String id = se.getId();
+				book.setId(id);
 				book.setTitle(se.getTitle().getPlainText());
-
 				StringBuilder sb = new StringBuilder();
 				for (Attribute attr : se.getAttributes()) {
 					if ("author".equals(attr.getName())) {
