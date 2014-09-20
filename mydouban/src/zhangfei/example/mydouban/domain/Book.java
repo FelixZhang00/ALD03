@@ -3,10 +3,10 @@ package zhangfei.example.mydouban.domain;
 import android.graphics.Bitmap;
 
 public class Book {
-	private String title;
-	private String description;
+	public String title;
+	public String description;
 	private float rating;
-	private String imgurl;
+	public String imgurl;
 	
 	public String getTitle() {
 		return title;

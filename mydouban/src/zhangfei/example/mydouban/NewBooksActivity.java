@@ -128,6 +128,7 @@ public class NewBooksActivity extends BaseMyBookActivity {
 			// 能获取到数据
 			mRl_loading_fromP.setVisibility(View.INVISIBLE);
 			// if (mAdapter == null) {
+			
 			mAdapter = new NewBooksAdapter(result);
 			wLv.setAdapter(mAdapter);
 			// } else {
