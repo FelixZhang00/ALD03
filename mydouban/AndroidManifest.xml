@@ -86,6 +86,11 @@
             android:label="@string/new_books"
             android:theme="@android:style/Theme.NoTitleBar" >
         </activity>
+        <activity
+            android:name="zhangfei.example.mydouban.SettingActivity"
+            android:label="@string/setting"
+             >
+        </activity>
 
         <receiver android:name="zhangfei.example.mydouban.receiver.NetConnChangedReceiver" >
             <intent-filter android:priority="1000" >

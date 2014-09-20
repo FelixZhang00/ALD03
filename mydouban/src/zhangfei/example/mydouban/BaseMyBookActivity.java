@@ -22,12 +22,18 @@ import com.google.gdata.util.ServiceException;
 import zhangfei.example.mydouban.Utils.LoadImageFromServer;
 import zhangfei.example.mydouban.Utils.LoadImageFromServer.LoadImageCallback;
 import zhangfei.example.mydouban.domain.Book;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -40,8 +46,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class BaseMyBookActivity extends BaseMyActivity {
-
-
 
 	public Map<String, SoftReference<Bitmap>> mIconCache;
 	private String TAG = "BaseMyBookActivity";
@@ -72,7 +76,6 @@ public class BaseMyBookActivity extends BaseMyActivity {
 
 	@Override
 	public void setupView() {
-	
 
 	}
 
@@ -176,39 +179,52 @@ public class BaseMyBookActivity extends BaseMyActivity {
 	 */
 	public void loadimgFromS(final ImageView iv_book, final String imgurl,
 			final File file, final boolean flag) {
-		LoadImageCallback callback = new LoadImageCallback() {
+		SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(BaseMyBookActivity.this);
+		boolean isdownload = sp.getBoolean("isdownloadimg", true);
+		if (isdownload) {
+			if (isNetworkAvail()) {
 
-			@Override
-			public void beforeLoad() {
+				LoadImageCallback callback = new LoadImageCallback() {
 
-			}
-
-			@Override
-			public void afterLoad(Bitmap result) {
-				if (result != null) {
-					iv_book.setImageBitmap(result);
-
-					if (flag) {
-						// store the img to sdcard.
-						try {
-							FileOutputStream fos = new FileOutputStream(file);
-							result.compress(CompressFormat.JPEG, 100, fos);
-						} catch (FileNotFoundException e) {
-							e.printStackTrace();
-						}
-					} else {
-						// store the img to cache.
-						mIconCache.put(imgurl,
-								new SoftReference<Bitmap>(result));
+					@Override
+					public void beforeLoad() {
 
 					}
 
-				}
+					@Override
+					public void afterLoad(Bitmap result) {
+						if (result != null) {
+							iv_book.setImageBitmap(result);
 
+							if (flag) {
+								// store the img to sdcard.
+								try {
+									FileOutputStream fos = new FileOutputStream(
+											file);
+									result.compress(CompressFormat.JPEG, 100,
+											fos);
+								} catch (FileNotFoundException e) {
+									e.printStackTrace();
+								}
+							} else {
+								// store the img to cache.
+								mIconCache.put(imgurl,
+										new SoftReference<Bitmap>(result));
+
+							}
+
+						}
+
+					}
+
+				};
+				new LoadImageFromServer(callback).execute(imgurl);
 			}
+		} else {
+			iv_book.setImageResource(R.drawable.book);
+		}
 
-		};
-		new LoadImageFromServer(callback).execute(imgurl);
 	}
 
 	/**
@@ -325,6 +341,28 @@ public class BaseMyBookActivity extends BaseMyActivity {
 			return view;
 		}
 
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		menu.add(0, 0, 0, "设置界面");
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case 0:
+			Intent settingIntent = new Intent(BaseMyBookActivity.this,
+					SettingActivity.class);
+			startActivity(settingIntent);
+			// System.out.println("点击菜单");
+			break;
+
+		default:
+			break;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 }

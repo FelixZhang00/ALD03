@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="省流量设置" >
+
+    <CheckBoxPreference
+        android:enabled="true"
+        android:key="isdownloadimg"
+        android:summaryOff="关闭"
+        android:summaryOn="开启"
+        android:title="3G下加载图片" />
+
+</PreferenceScreen>

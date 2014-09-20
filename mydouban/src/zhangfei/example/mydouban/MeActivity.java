@@ -85,7 +85,6 @@ public class MeActivity extends BaseCheckNetActivity implements
 		mContext_fromP = this;
 		super.onCreate(savedInstanceState);
 
-		
 		setupView();
 		mLv.setAdapter(new ArrayAdapter<String>(this, R.layout.me_item,
 				R.id.tv_me_item, items));
@@ -189,6 +188,11 @@ public class MeActivity extends BaseCheckNetActivity implements
 			case 0:
 				Intent myreadIntent = new Intent(this, MyReadActivity.class);
 				startActivity(myreadIntent);
+				break;
+			case 1:
+				Intent settingIntent = new Intent(this,
+						SettingActivity.class);
+				startActivity(settingIntent);
 				break;
 			case 4:
 				Intent mynoteIntent = new Intent(this, MyNoteActivity2.class);
@@ -406,30 +410,30 @@ public class MeActivity extends BaseCheckNetActivity implements
 	}
 
 	// 按返回键后调用的方法
-		@Override
-		public void onBackPressed() {
-			if (!mBackKeyPressedTimes) {
-				Toast.makeText(getApplicationContext(), "再按一次退出应用",
-						Toast.LENGTH_SHORT).show();
-				mBackKeyPressedTimes = true;
-				new Thread() {
-					@Override
-					public void run() {
-						try {
-							Thread.sleep(1800);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						} finally {
-							mBackKeyPressedTimes = false;
-						}
-						super.run();
+	@Override
+	public void onBackPressed() {
+		if (!mBackKeyPressedTimes) {
+			Toast.makeText(getApplicationContext(), "再按一次退出应用",
+					Toast.LENGTH_SHORT).show();
+			mBackKeyPressedTimes = true;
+			new Thread() {
+				@Override
+				public void run() {
+					try {
+						Thread.sleep(1800);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					} finally {
+						mBackKeyPressedTimes = false;
 					}
-				}.start();
-				return; // 在打开上面的新线程的同时，已经return了
-			} else {
-				finish();
-			}
-			super.onBackPressed(); // 抢在调用父类方法之前
+					super.run();
+				}
+			}.start();
+			return; // 在打开上面的新线程的同时，已经return了
+		} else {
+			finish();
 		}
+		super.onBackPressed(); // 抢在调用父类方法之前
+	}
 
 }

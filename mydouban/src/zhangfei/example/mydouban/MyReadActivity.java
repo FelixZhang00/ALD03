@@ -75,7 +75,6 @@ public class MyReadActivity extends BaseMyBookActivity implements
 		setContentView(R.layout.myread_layout);
 		super.onCreate(savedInstanceState);
 
-
 	}
 
 	@Override
@@ -191,13 +190,15 @@ public class MyReadActivity extends BaseMyBookActivity implements
 			protected void onPostExecute(List<Book> result) {
 				singleOutResult(result);
 				mFlag_isloading = false;
+
 				super.onPostExecute(result);
 			}
 
 			private void singleOutResult(List<Book> result) {
+				hideLoading();
 				if (result == null) {
 					// 从服务器获取数据失败
-					hideLoading();
+
 					mPb_loadingFP.setVisibility(View.GONE);
 					mTv_loadingFP.setText("加载失败，请重试");
 				} else if (result.isEmpty()) {
@@ -206,7 +207,7 @@ public class MyReadActivity extends BaseMyBookActivity implements
 					wLL_notice.setVisibility(View.VISIBLE);
 					wTv_link.setMovementMethod(LinkMovementMethod.getInstance());
 					mRl_loading_fromP.setVisibility(View.INVISIBLE);
-					hideLoading();
+
 				} else {
 					// 能获取到数据
 					mRl_loading_fromP.setVisibility(View.INVISIBLE);

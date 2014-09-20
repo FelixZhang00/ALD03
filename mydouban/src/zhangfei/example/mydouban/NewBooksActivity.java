@@ -128,7 +128,7 @@ public class NewBooksActivity extends BaseMyBookActivity {
 			// 能获取到数据
 			mRl_loading_fromP.setVisibility(View.INVISIBLE);
 			// if (mAdapter == null) {
-			
+
 			mAdapter = new NewBooksAdapter(result);
 			wLv.setAdapter(mAdapter);
 			// } else {
@@ -179,7 +179,7 @@ public class NewBooksActivity extends BaseMyBookActivity {
 			tv_title.setText(newBook.getTitle());
 			tv_desc.setText(newBook.getDescription());
 			// rb.setRating(4.0f);
-			rb.setVisibility(View.GONE);
+			rb.setVisibility(View.INVISIBLE);
 			final String imgurl = newBook.getImgurl();
 			loadimgMethod2(iv_book, imgurl);
 			return view;

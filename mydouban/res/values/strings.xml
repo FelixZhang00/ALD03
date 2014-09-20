@@ -17,5 +17,6 @@
     <string name="menu_item_delete">删除日记</string>
     <string name="note_edit">编辑日记</string>
     <string name="new_books">新书</string>
+    <string name="setting">设置</string>
 
 </resources>
