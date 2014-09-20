@@ -406,30 +406,30 @@ public class MeActivity extends BaseCheckNetActivity implements
 	}
 
 	// 按返回键后调用的方法
-	@Override
-	public void onBackPressed() {
-		if (!mBackKeyPressedTimes) {
-			Toast.makeText(getApplicationContext(), "再按一次退出应用",
-					Toast.LENGTH_SHORT).show();
-			mBackKeyPressedTimes = true;
-			new Thread() {
-				@Override
-				public void run() {
-					try {
-						Thread.sleep(1800);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					} finally {
-						mBackKeyPressedTimes = false;
+		@Override
+		public void onBackPressed() {
+			if (!mBackKeyPressedTimes) {
+				Toast.makeText(getApplicationContext(), "再按一次退出应用",
+						Toast.LENGTH_SHORT).show();
+				mBackKeyPressedTimes = true;
+				new Thread() {
+					@Override
+					public void run() {
+						try {
+							Thread.sleep(1800);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						} finally {
+							mBackKeyPressedTimes = false;
+						}
+						super.run();
 					}
-					super.run();
-				}
-			}.start();
-			return; // 在打开上面的新线程的同时，已经return了
-		} else {
-			finish();
+				}.start();
+				return; // 在打开上面的新线程的同时，已经return了
+			} else {
+				finish();
+			}
+			super.onBackPressed(); // 抢在调用父类方法之前
 		}
-		super.onBackPressed(); // 抢在调用父类方法之前
-	}
 
 }

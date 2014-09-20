@@ -51,7 +51,7 @@ public class MainTabActivity extends TabActivity {
 
 	private TabSpec getMyDouBanTabSpec() {
 		TabSpec spec = mTabHost.newTabSpec("newbook");
-		Intent intent = new Intent(MainTabActivity.this, TestActivity.class);
+		Intent intent = new Intent(MainTabActivity.this, NewBooksActivity.class);
 		spec.setContent(intent);
 		// Drawable icon = getResources().getDrawable(R.drawable.ic_launcher);
 		// spec.setIndicator("新书", icon);

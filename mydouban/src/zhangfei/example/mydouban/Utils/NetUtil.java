@@ -17,6 +17,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
 import zhangfei.example.mydouban.R;
+import zhangfei.example.mydouban.domain.NewBook;
 
 import com.google.gdata.client.douban.DoubanService;
 
@@ -171,4 +172,51 @@ public class NetUtil {
 		editor.commit();
 		return true;
 	}
+	
+	
+	
+	
+
+	public static List<NewBook> getNewBooks(Context context) throws Exception {
+		String newbookurl = context.getResources().getString(
+				R.string.newbookurl);
+		URL url = new URL(newbookurl);
+
+		URLConnection conn = url.openConnection();
+		Source source = new Source(conn);
+		List<Element> elements = source.getAllElements("li");
+		System.out.println(elements.size());
+		List<NewBook> newBooks = new ArrayList<NewBook>();
+		for (Element element : elements) {
+			List<Element> childElements = element.getChildElements();
+			if (childElements.size() == 2) {
+				if ("detail-frame".equals(childElements.get(0)
+						.getAttributeValue("class"))) {
+					NewBook newBook = new NewBook();
+					Element divElement = childElements.get(0);
+					List<Element> divlists = divElement.getChildElements();
+
+					String title = divlists.get(0).getTextExtractor()
+							.toString();
+					newBook.setTitle(title);
+					String desc = divlists.get(1).getTextExtractor().toString();
+					newBook.setDescription(desc);
+					String summary = divlists.get(2).getTextExtractor()
+							.toString();
+					newBook.setSummary(summary);
+
+					Element imgElement = childElements.get(1);
+					String imgurl = imgElement.getChildElements().get(0)
+							.getAttributeValue("src");
+					newBook.setImgurl(imgurl);
+					newBooks.add(newBook);
+				}
+
+			}
+
+		}
+		return newBooks;
+
+	}
+
 }

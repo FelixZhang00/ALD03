@@ -81,6 +81,11 @@
             android:label="@string/note_edit"
             android:theme="@android:style/Theme.NoTitleBar" >
         </activity>
+        <activity
+            android:name="zhangfei.example.mydouban.NewBooksActivity"
+            android:label="@string/new_books"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
 
         <receiver android:name="zhangfei.example.mydouban.receiver.NetConnChangedReceiver" >
             <intent-filter android:priority="1000" >
@@ -92,7 +97,7 @@
     <instrumentation
         android:name="android.test.InstrumentationTestRunner"
         android:label="Test"
-        android:targetPackage="com.project.jamffy.mobilesafe2" >
+        android:targetPackage="zhangfei.example.mydouban" >
     </instrumentation>
 
 </manifest>

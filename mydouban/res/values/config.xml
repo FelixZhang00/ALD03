@@ -6,5 +6,6 @@
     <string name="douban_apiKey">088575cb2541e15d199061616fc5a417</string>
     <string name="douban_secret">60cad41f3af7aac3</string>
     <string name="douban_appname">douban的android客户端嘻嘻</string>
+    <string name="newbookurl">http://book.douban.com/latest?icn=index-latestbook-all</string>
 
 </resources>

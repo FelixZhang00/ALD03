@@ -17,6 +17,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
 import zhangfei.example.mydouban.R;
+import zhangfei.example.mydouban.domain.NewBook;
 
 import com.google.gdata.client.douban.DoubanService;
 import com.google.gdata.data.douban.UserEntry;
@@ -54,7 +55,8 @@ public class TestNet extends AndroidTestCase {
 		String apiKey = "088575cb2541e15d199061616fc5a417";
 		String secret = "60cad41f3af7aac3";
 
-		DoubanService myService = new DoubanService("douban的android客户端嘻嘻", apiKey, secret);
+		DoubanService myService = new DoubanService("douban的android客户端嘻嘻",
+				apiKey, secret);
 
 		System.out
 				.println("please paste the url in your webbrowser, complete the authorization then come back:");
@@ -71,8 +73,7 @@ public class TestNet extends AndroidTestCase {
 		 * source=simple&redir=http%3A%2F%2Fwww.douban.com%2Fservice%2Fauth%2F
 		 * authorize
 		 * %3Foauth_token%3Dae4f777efc4c2be00aee667cf4e483a0&form_email=
-		 * 2650129380
-		 * %40qq.com&form_password=**--&captcha-solution=sound&
+		 * 2650129380 %40qq.com&form_password=**--&captcha-solution=sound&
 		 * captcha-id
 		 * =N8khpMEggxW87ShDw6KB5tXb%3Aen&user_login=%E7%99%BB%E5%BD%95
 		 */
@@ -85,8 +86,7 @@ public class TestNet extends AndroidTestCase {
 				"http://www.douban.com"));
 		namevaluepairs.add(new BasicNameValuePair("form_email",
 				"2650129380@qq.com"));
-		namevaluepairs.add(new BasicNameValuePair("form_password",
-				"**"));
+		namevaluepairs.add(new BasicNameValuePair("form_password", "**"));
 		// //填入验证码信息
 		// namevaluepairs
 		// .add(new BasicNameValuePair("captcha-solution", "lecture"));
@@ -164,8 +164,47 @@ public class TestNet extends AndroidTestCase {
 
 		UserEntry ue = myService.getAuthorizedUser();
 		String name = ue.getTitle().getPlainText();
-		System.out.println("name="+name);
+		System.out.println("name=" + name);
 
 	}
 
+	public void testNewBook() throws Exception {
+		URL url = new URL("http://book.douban.com/latest");
+
+		URLConnection conn = url.openConnection();
+		Source source = new Source(conn);
+		List<Element> elements = source.getAllElements("li");
+		System.out.println(elements.size());
+		List<NewBook> newBooks = new ArrayList<NewBook>();
+		for (Element element : elements) {
+			List<Element> childElements = element.getChildElements();
+			if (childElements.size() == 2) {
+				if ("detail-frame".equals(childElements.get(0)
+						.getAttributeValue("class"))) {
+					NewBook newBook = new NewBook();
+					Element divElement = childElements.get(0);
+					List<Element> divlists = divElement.getChildElements();
+
+					String title = divlists.get(0).getTextExtractor()
+							.toString();
+					newBook.setTitle(title);
+					String desc = divlists.get(1).getTextExtractor().toString();
+					newBook.setDescription(desc);
+					String summary = divlists.get(2).getTextExtractor()
+							.toString();
+					newBook.setSummary(summary);
+
+					Element imgElement = childElements.get(1);
+					String imgurl = imgElement.getChildElements().get(0)
+							.getAttributeValue("src");
+					newBook.setImgurl(imgurl);
+					newBooks.add(newBook);
+				}
+
+			}
+
+		}
+		System.out.println(newBooks);
+
+	}
 }
